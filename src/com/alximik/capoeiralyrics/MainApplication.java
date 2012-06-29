@@ -1,5 +1,6 @@
 package com.alximik.capoeiralyrics;
 
+import android.app.Application;
 import android.content.Context;
 import greendroid.app.GDApplication;
 
@@ -9,7 +10,7 @@ import greendroid.app.GDApplication;
  * @author alximik
  * @since 6/28/12 4:25 PM
  */
-public class MainApplication extends GDApplication {
+public class MainApplication extends Application {
 
     private static MainApplication instance;
 

@@ -11,11 +11,13 @@ import android.util.Log;
 import android.widget.ArrayAdapter;
 import android.widget.SimpleAdapter;
 import com.alximik.capoeiralyrics.entities.Song;
+import com.alximik.capoeiralyrics.entities.SongsStorage;
 import com.alximik.capoeiralyrics.network.Api;
 import com.alximik.capoeiralyrics.network.SongsCallback;
 import com.alximik.capoeiralyrics.views.SongsAdapter;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
@@ -23,8 +25,8 @@ import java.util.List;
 public class SongsListActivity extends ListActivity {
     
     Handler handler = new Handler();
-    
     List<Song> songs = new ArrayList<Song>();
+    SongsAdapter songsAdapter;
 
     /**
      * Called when the activity is first created.
@@ -34,8 +36,8 @@ public class SongsListActivity extends ListActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.main_list);
 
-        SongsAdapter adapter = new SongsAdapter(this, R.id.txt_title, songs);
-        getListView().setAdapter(adapter);
+        songsAdapter = new SongsAdapter(this, R.id.txt_title, songs);
+        getListView().setAdapter(songsAdapter);
         startLoad();
     }
 
@@ -58,13 +60,13 @@ public class SongsListActivity extends ListActivity {
         });
     }
 
-    private void showConfirmationDialog(Song[] songs) {
+    private void showConfirmationDialog(final Song[] newSongs) {
 
         DialogInterface.OnClickListener onOk = new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialogInterface, int which) {
                 dialogInterface.dismiss();
-                //TODO:
+                saveSongs(newSongs);
             }
         };
 
@@ -82,6 +84,25 @@ public class SongsListActivity extends ListActivity {
                 .setNegativeButton("Cancel", onCancel)
                 .show();
     }
+
+    private void saveSongs(final Song[] newSongs) {
+        songs.clear();
+
+        songs.addAll(Arrays.asList(newSongs) );
+        songsAdapter.notifyDataSetInvalidated();
+
+        Thread saveThread = new Thread() {
+            public void run() {
+                try {
+                    SongsStorage.save(SongsListActivity.this,  newSongs);
+                } catch (Exception e) {
+                    Log.e(Constants.TAG, "Failed to save songs", e);
+                }
+            }
+        };
+        saveThread.start();
+    }
+
 }
 
 

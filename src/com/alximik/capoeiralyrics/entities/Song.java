@@ -5,6 +5,8 @@ import android.os.Parcelable;
 import android.util.Log;
 import com.alximik.capoeiralyrics.Constants;
 import com.alximik.capoeiralyrics.utils.JU;
+import com.j256.ormlite.field.DatabaseField;
+import com.j256.ormlite.table.DatabaseTable;
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -16,17 +18,24 @@ import java.io.Serializable;
  * @author alximik
  * @since 27.06.12 19:00
  */
+@DatabaseTable(tableName = "songs")
 public class Song implements Parcelable, Serializable {
+
+    @DatabaseField(generatedId = true)
     private long id;
-    private String title;
-    private String author;
-    private String text;
-    private String engText;
-    private String rusText;
-    private String audioUrl;
-    private String videoUrl;
+
+    @DatabaseField private String title;
+    @DatabaseField private String author;
+    @DatabaseField private String text;
+    @DatabaseField private String engText;
+    @DatabaseField private String rusText;
+    @DatabaseField private String audioUrl;
+    @DatabaseField private String videoUrl;
 
     private boolean favourite;
+
+    public Song() {
+    }
 
     public Song(long id, String title, String author, String text, String engText, String rusText, String audioUrl, String videoUrl) {
         this.id = id;
@@ -80,13 +89,45 @@ public class Song implements Parcelable, Serializable {
     }
 
 
+    public void setId(long id) {
+        this.id = id;
+    }
+
+    public void setTitle(String title) {
+        this.title = title;
+    }
+
+    public void setAuthor(String author) {
+        this.author = author;
+    }
+
+    public void setText(String text) {
+        this.text = text;
+    }
+
+    public void setEngText(String engText) {
+        this.engText = engText;
+    }
+
+    public void setRusText(String rusText) {
+        this.rusText = rusText;
+    }
+
+    public void setAudioUrl(String audioUrl) {
+        this.audioUrl = audioUrl;
+    }
+
+    public void setVideoUrl(String videoUrl) {
+        this.videoUrl = videoUrl;
+    }
+
 
     public static Song fromJson(JSONObject jsonObject) {
         return new Song(
                 JU.getLongSafe(jsonObject, "ID"),
                 JU.getStringSafe(jsonObject, "Name"),
-                JU.getStringSafe(jsonObject, "Text"),
                 JU.getStringSafe(jsonObject, "Artist"),
+                JU.getStringSafe(jsonObject, "Text"),
                 JU.getStringSafe(jsonObject, "EngText"),
 
                 JU.getStringSafe(jsonObject, "RusText"),
@@ -143,5 +184,4 @@ public class Song implements Parcelable, Serializable {
             return new Song[size];
         }
     };
-
 }

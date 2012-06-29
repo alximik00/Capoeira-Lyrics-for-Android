@@ -31,7 +31,7 @@ public class Api {
     }
 
     private static String getSongsSync() throws IOException {
-        String url = constants.getServerUrl() + "JSONAPI/AllSongsFull?token=" + constants.getSecurityToken();
+        String url = constants.getServerUrl() + "/JSONAPI/AllSongsFull?token=" + constants.getSecurityToken();
 
         HttpClient client = new DefaultHttpClient();
 
