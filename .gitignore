@@ -2,3 +2,12 @@
 /CapoeiraLyrics/gen/*
 /CapoeiraLyrics/out/*
 /CapoeiraLyrics/src/com/alximik/capoeiralyrics/network/Constants.java
+/LibraryProjects/android-actionbar/johannilsson-android-actionbar-1830dfd/actionbar/pom.xml
+/LibraryProjects/android-actionbar/johannilsson-android-actionbar-1830dfd/README.md
+/LibraryProjects/android-actionbar/johannilsson-android-actionbar-1830dfd/.gitignore
+/LibraryProjects/android-actionbar/johannilsson-android-actionbar-1830dfd/actionbarexample/*
+
+/LibraryProjects/android-segmentedradiobutton/.idea/*
+/LibraryProjects/android-segmentedradiobutton/.gitignore
+/LibraryProjects/android-segmentedradiobutton/out/*
+/LibraryProjects/lorensiuswlt-NewQuickAction/bin/*
