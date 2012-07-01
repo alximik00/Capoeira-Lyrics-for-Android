@@ -11,7 +11,7 @@
             android:theme="@android:style/Theme.Light" >
 
         <activity
-                android:name=".SongsListActivity"
+                android:name=".activities.SongsListActivity"
                 android:label="@string/activity_name">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN"/>

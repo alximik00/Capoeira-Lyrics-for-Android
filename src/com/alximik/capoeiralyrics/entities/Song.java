@@ -1,10 +1,16 @@
 package com.alximik.capoeiralyrics.entities;
 
+import android.os.Parcel;
+import android.os.Parcelable;
+import android.util.Log;
+import com.alximik.capoeiralyrics.Constants;
 import com.alximik.capoeiralyrics.utils.JU;
 import com.j256.ormlite.field.DatabaseField;
 import com.j256.ormlite.table.DatabaseTable;
+import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.io.Serializable;
 
 /**
  * Created by IntelliJ IDEA.
@@ -13,7 +19,7 @@ import org.json.JSONObject;
  * @since 27.06.12 19:00
  */
 @DatabaseTable(tableName = "songs")
-public class Song  {
+public class Song implements Parcelable, Serializable {
 
     @DatabaseField(generatedId = true)
     private long id;
@@ -139,4 +145,43 @@ public class Song  {
         }
         return null;
     }
+
+    //////// Implement Parcelable
+    @Override
+    public int describeContents() {
+        return 0xBADF00D8;
+    }
+
+    @Override
+    public void writeToParcel(Parcel parcel, int i) {
+        parcel.writeLong(id);
+        parcel.writeString( title );
+        parcel.writeString( author );
+        parcel.writeString( text );
+        parcel.writeString( engText );
+        parcel.writeString( rusText );
+        parcel.writeString( audioUrl );
+        parcel.writeString( videoUrl );
+    }
+
+    private Song(Parcel parcel) {
+        this.id = parcel.readLong();
+        this.title = parcel.readString();
+        this.author = parcel.readString();
+        this.text = parcel.readString();
+        this.engText = parcel.readString();
+        this.rusText = parcel.readString();
+        this.audioUrl = parcel.readString();
+        this.videoUrl = parcel.readString();
+    }
+
+    public static final Parcelable.Creator<Song> CREATOR = new Parcelable.Creator<Song>() {
+        public Song createFromParcel(Parcel in) {
+            return new Song(in);
+        }
+
+        public Song[] newArray(int size) {
+            return new Song[size];
+        }
+    };
 }

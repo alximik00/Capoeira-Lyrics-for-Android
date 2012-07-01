@@ -1,4 +1,8 @@
 <resources>
     <color name="actionbar_background_start">#B8E5FF</color>
     <color name="actionbar_background_end">#3166A3</color>
+    <color name="actionbar_separator">#ffbcd6e8</color>
+
+    <color name="actionbar_background_item_pressed_start">#ff3779bd</color>
+    <color name="actionbar_background_item_pressed_end">#ffaacddf</color>
 </resources>

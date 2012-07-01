@@ -1,13 +1,16 @@
 package com.alximik.capoeiralyrics.entities;
 
 import android.content.Context;
+import com.alximik.capoeiralyrics.activities.FavouritesActivity;
 import com.alximik.capoeiralyrics.utils.DatabaseHelper;
 import com.j256.ormlite.dao.Dao;
 import com.j256.ormlite.stmt.QueryBuilder;
 import com.j256.ormlite.stmt.Where;
 
 import java.sql.SQLException;
+import java.util.ArrayList;
 import java.util.List;
+import java.util.Set;
 
 /**
  * Created by IntelliJ IDEA.
@@ -59,5 +62,14 @@ public class SongsStorage {
         for(Song song: songs) {
             dao.create(song);
         }
+    }
+
+    public static List<Song> loadFavourites(Context context, Set<Long> favourites) throws SQLException {
+        Dao<Song, Long> dao = new DatabaseHelper(context).getSongsDao();
+        List<Song> res = new ArrayList<Song>(favourites.size());
+        for(long id: favourites) {
+            res.add( dao.queryForId(id) );
+        }
+        return res;
     }
 }

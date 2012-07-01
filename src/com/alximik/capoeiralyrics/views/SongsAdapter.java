@@ -55,6 +55,7 @@ public class SongsAdapter extends ArrayAdapter<Song> {
 
         setVisibilityOnString(imgEn, song.getEngText());
         setVisibilityOnString(imgRu, song.getRusText());
+
         setVisibilityOnString(imgAudio, song.getAudioUrl());
         setVisibilityOnString(imgVideo, song.getVideoUrl());
 
@@ -102,5 +103,6 @@ public class SongsAdapter extends ArrayAdapter<Song> {
             return R.drawable.logo_mundo;
 
         return R.drawable.logo_default;
+
     }
 }

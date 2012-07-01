@@ -42,7 +42,7 @@
                 android:layout_width="fill_parent"
                 android:layout_height="fill_parent"
                 android:orientation="vertical"
-                android:background="#7666">
+                android:background="#A555">
 
             <EditText
                     android:id="@+id/txt_search"
