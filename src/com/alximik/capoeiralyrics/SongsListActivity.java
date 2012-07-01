@@ -9,6 +9,7 @@ import android.view.KeyEvent;
 import android.view.View;
 import android.view.inputmethod.EditorInfo;
 import android.widget.*;
+import com.alximik.capoeiralyrics.entities.FavouritesStorage;
 import com.alximik.capoeiralyrics.entities.SearchType;
 import com.alximik.capoeiralyrics.entities.Song;
 import com.alximik.capoeiralyrics.entities.SongsStorage;
@@ -16,16 +17,17 @@ import com.alximik.capoeiralyrics.network.Api;
 import com.alximik.capoeiralyrics.network.SongsCallback;
 import com.alximik.capoeiralyrics.views.SongsAdapter;
 import com.makeramen.segmented.SegmentedRadioGroup;
+import com.markupartist.android.widget.ActionBar;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
+import java.util.*;
 
 
 public class SongsListActivity extends Activity {
     
     Handler handler = new Handler();
     List<Song> songs = new ArrayList<Song>();
+    Set<Long> favourites = new HashSet<Long>();
+
     SongsAdapter songsAdapter;
     private ProgressDialog progressDialog;
     private ListView listView;
@@ -33,6 +35,7 @@ public class SongsListActivity extends Activity {
     private EditText searchTextField;
     private LinearLayout searchPanel;
     private SegmentedRadioGroup searchType;
+    private ActionBar actionBar;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -40,14 +43,14 @@ public class SongsListActivity extends Activity {
 
         setContentView(R.layout.main_list);
 
-        songsAdapter = new SongsAdapter(this, R.id.txt_title, songs);
+        actionBar = (ActionBar) findViewById(R.id.actionbar);
+
+        songsAdapter = new SongsAdapter(this, R.id.txt_title, songs, favourites);
         listView = (ListView) findViewById(android.R.id.list);
         listView.setAdapter(songsAdapter);
-
         emptyText = (TextView) findViewById(android.R.id.empty);
 
         searchPanel = (LinearLayout) findViewById(R.id.search_panel);
-
         searchType = (SegmentedRadioGroup) findViewById(R.id.radio_search_type);
 
         searchTextField = (EditText)findViewById(R.id.txt_search);
@@ -62,6 +65,7 @@ public class SongsListActivity extends Activity {
             }
         });
 
+        setupActionbar();
         setupSongs();
     }
 
@@ -87,12 +91,22 @@ public class SongsListActivity extends Activity {
         return false;  // don't show the default search box
     }
 
+    private void setupActionbar() {
+
+    }
+
     private void setupSongs() {
+        try {
+            Set<Long> favs = FavouritesStorage.loadFavourites(this);
+            favourites.addAll(favs);
+            favourites.clear();
+        } catch (Exception e) {}
+
+
         try {
             Song[] newSongs = SongsStorage.load(this);
             setNewSongs( Arrays.asList(newSongs) );
-        } catch (Exception e) {
-        }
+        } catch (Exception e) { }
 
         if (MainApplication.isUpdateAsked())
             return;
@@ -180,6 +194,7 @@ public class SongsListActivity extends Activity {
     private void onStartSearch() {
         loadSongs(searchTextField.getText().toString(), getSearchType());
         searchPanel.setVisibility(View.GONE);
+        searchTextField.requestFocus();
     }
 
     private SearchType getSearchType() {

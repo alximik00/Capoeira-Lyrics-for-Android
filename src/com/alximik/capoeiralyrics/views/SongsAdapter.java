@@ -1,7 +1,6 @@
 package com.alximik.capoeiralyrics.views;
 
 import android.app.Activity;
-import android.content.Context;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -13,6 +12,7 @@ import com.alximik.capoeiralyrics.entities.Song;
 import com.alximik.capoeiralyrics.utils.SU;
 
 import java.util.List;
+import java.util.Set;
 
 /**
  * Created by IntelliJ IDEA.
@@ -23,11 +23,13 @@ import java.util.List;
 public class SongsAdapter extends ArrayAdapter<Song> {
     private Activity context;
     private List<Song> songs;
+    private Set<Long> favs;
 
-    public SongsAdapter(Activity context, int textViewResourceId, List<Song> songs) {
+    public SongsAdapter(Activity context, int textViewResourceId, List<Song> songs, Set<Long> favourites) {
         super(context, textViewResourceId, songs);
         this.context = context;
         this.songs = songs;
+        this.favs = favourites;
     }
 
     public View getView(int position, View convertView, ViewGroup parent) {
@@ -57,7 +59,7 @@ public class SongsAdapter extends ArrayAdapter<Song> {
         setVisibilityOnString(imgVideo, song.getVideoUrl());
 
         imgLogo.setImageDrawable(context.getResources().getDrawable( chooseLogo(song.getAuthor())  ));
-        //imgFav.setVisibility( song.isFavourite() ? View.VISIBLE : View.GONE );
+        imgFav.setVisibility( favs.contains(song.getId()) ? View.VISIBLE : View.GONE );
 
         return convertView;
     }

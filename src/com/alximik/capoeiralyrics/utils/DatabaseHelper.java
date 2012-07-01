@@ -5,6 +5,7 @@ import com.alximik.capoeiralyrics.R;
 import android.content.Context;
 import android.database.sqlite.SQLiteDatabase;
 import android.util.Log;
+import com.alximik.capoeiralyrics.entities.Favourite;
 import com.alximik.capoeiralyrics.entities.Song;
 import com.j256.ormlite.android.apptools.OrmLiteSqliteOpenHelper;
 import com.j256.ormlite.dao.Dao;
@@ -29,6 +30,8 @@ public class DatabaseHelper extends OrmLiteSqliteOpenHelper {
 
     // the DAO object we use to access the Song table
     private Dao<Song, Long> songDao = null;
+    private Dao<Favourite, Integer> favouritesDao = null;
+
     private RuntimeExceptionDao<Song, Long> simpleRuntimeDao = null;
 
     public DatabaseHelper(Context context) {
@@ -43,6 +46,7 @@ public class DatabaseHelper extends OrmLiteSqliteOpenHelper {
     public void onCreate(SQLiteDatabase db, ConnectionSource connectionSource) {
         try {
             Log.i(DatabaseHelper.class.getName(), "onCreate");
+            TableUtils.createTable(connectionSource, Favourite.class);
             TableUtils.createTable(connectionSource, Song.class);
         } catch (SQLException e) {
             Log.e(DatabaseHelper.class.getName(), "Can't create database", e);
@@ -58,6 +62,7 @@ public class DatabaseHelper extends OrmLiteSqliteOpenHelper {
     public void onUpgrade(SQLiteDatabase db, ConnectionSource connectionSource, int oldVersion, int newVersion) {
         try {
             Log.i(DatabaseHelper.class.getName(), "onUpgrade");
+            TableUtils.dropTable(connectionSource, Favourite.class, true);
             TableUtils.dropTable(connectionSource, Song.class, true);
             // after we drop the old databases, we create the new ones
             onCreate(db, connectionSource);
@@ -70,7 +75,7 @@ public class DatabaseHelper extends OrmLiteSqliteOpenHelper {
      * Returns the Database Access Object (DAO) for our Song class. It will create it or just give the cached
      * value.
      */
-    public Dao<Song, Long> getDao() throws SQLException {
+    public Dao<Song, Long> getSongsDao() throws SQLException {
         if (songDao == null) {
             songDao = getDao(Song.class);
         }
@@ -95,5 +100,12 @@ public class DatabaseHelper extends OrmLiteSqliteOpenHelper {
     public void close() {
         super.close();
         simpleRuntimeDao = null;
+    }
+
+    public Dao<Favourite, Integer> getFavouritesDao() throws SQLException {
+        if (favouritesDao == null) {
+            favouritesDao = getDao(Favourite.class);
+        }
+        return favouritesDao;
     }
 }

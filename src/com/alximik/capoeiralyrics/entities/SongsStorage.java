@@ -1,18 +1,11 @@
 package com.alximik.capoeiralyrics.entities;
 
 import android.content.Context;
-import android.content.SharedPreferences;
-import android.util.Base64;
-import android.util.Base64InputStream;
-import android.util.Base64OutputStream;
-import com.alximik.capoeiralyrics.MainApplication;
 import com.alximik.capoeiralyrics.utils.DatabaseHelper;
 import com.j256.ormlite.dao.Dao;
-import com.j256.ormlite.dao.DaoManager;
 import com.j256.ormlite.stmt.QueryBuilder;
 import com.j256.ormlite.stmt.Where;
 
-import java.io.*;
 import java.sql.SQLException;
 import java.util.List;
 
@@ -23,18 +16,15 @@ import java.util.List;
  * @since 6/28/12 7:07 PM
  */
 public class SongsStorage {
-    public static final String STORE_NAME = "songs_store";
-    public static final String SONGS_FIELD = "SONGS";
 
     public static Song[] load(Context context) throws Exception {
-        Dao<Song, Long> dao = new DatabaseHelper(context).getDao();
+        Dao<Song, Long> dao = new DatabaseHelper(context).getSongsDao();
         List<Song> songs = dao.queryForAll();
         return  songs.toArray(new Song[songs.size()]);
-
     }
     
     public  static List<Song> load(Context context, String what, SearchType searchType) throws SQLException {
-        Dao<Song, Long> dao = new DatabaseHelper(context).getDao();
+        Dao<Song, Long> dao = new DatabaseHelper(context).getSongsDao();
 
         QueryBuilder<Song,Long> builder = dao.queryBuilder();
         Where<Song, Long> where = builder.where();
@@ -62,13 +52,12 @@ public class SongsStorage {
     }
 
     public static void save(Context context, Song[] songs) throws Exception {
-        Dao<Song, Long> dao = new DatabaseHelper(context).getDao();
+        Dao<Song, Long> dao = new DatabaseHelper(context).getSongsDao();
         dao.deleteBuilder().delete();
         dao.clearObjectCache();
 
         for(Song song: songs) {
             dao.create(song);
         }
-
     }
 }
