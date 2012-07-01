@@ -37,4 +37,25 @@ public class FavouritesStorage {
             dao.create(new Favourite(fav));
         }
     }
+
+    public static void add(Context context, long id) {
+        try {
+            Dao<Favourite,Integer> dao = new DatabaseHelper(context).getFavouritesDao();
+            List<Favourite> found = dao.queryForEq("songId", id);
+            if (found.size() > 0) {
+                return;
+            }  else {
+                dao.create(new Favourite(id));
+            }
+        } catch (SQLException e) {
+        }
+    }
+
+    public static void remove(Context context, long id) {
+        try {
+            Dao<Favourite,Integer> dao = new DatabaseHelper(context).getFavouritesDao();
+            dao.deleteBuilder().where().eq("songId", id).query();
+        } catch (SQLException e) {
+        }
+    }
 }

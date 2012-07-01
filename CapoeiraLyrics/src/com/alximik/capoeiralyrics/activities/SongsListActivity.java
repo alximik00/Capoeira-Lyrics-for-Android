@@ -1,7 +1,9 @@
 package com.alximik.capoeiralyrics.activities;
 
 import android.app.*;
+import android.content.Context;
 import android.content.DialogInterface;
+import android.content.Intent;
 import android.os.Bundle;
 import android.os.Handler;
 import android.util.Log;
@@ -22,12 +24,18 @@ import com.alximik.capoeiralyrics.network.Api;
 import com.alximik.capoeiralyrics.network.SongsCallback;
 import com.makeramen.segmented.SegmentedRadioGroup;
 import com.markupartist.android.widget.ActionBar;
+import net.londatiga.android.ActionItem;
+import net.londatiga.android.QuickAction;
 
 import java.util.*;
 
 
 public class SongsListActivity extends BaseListActivity {
-    
+    private static final int IdQuickActionFav = 1;
+    private static final int IdQuickActionUnfav = 2;
+    private static final int IdQuickActionPlayAudio = 3;
+    private static final int IdQuickActionPlayVideo = 4;
+
     Handler handler = new Handler();
 
     private ProgressDialog progressDialog;
@@ -56,6 +64,15 @@ public class SongsListActivity extends BaseListActivity {
 
         setupActionbar();
         setupSongs();
+
+        listView.setOnItemLongClickListener(new AdapterView.OnItemLongClickListener() {
+            @Override
+            public boolean onItemLongClick(AdapterView<?> adapterView, View view, int index, long id) {
+                Song song = Song.findById(songs, id);
+                onSongLongClick(view, song);
+                return true;
+            }
+        });
     }
 
     @Override
@@ -117,6 +134,8 @@ public class SongsListActivity extends BaseListActivity {
 
             @Override
             public void performAction(View view) {
+                Intent intent = new Intent(SongsListActivity.this, FavouritesActivity.class);
+                startActivity(intent);
             }
         });
     }
@@ -166,6 +185,56 @@ public class SongsListActivity extends BaseListActivity {
             MainApplication.setUpdateAsked(true);
         }
     }
+
+    private void onSongLongClick(final View view, final Song song) {
+        QuickAction quickActionMenu = new QuickAction(this);
+//        if (song == null)
+//            return;
+
+        if (song.isFavourite()) {
+            quickActionMenu.addActionItem(new ActionItem(IdQuickActionUnfav, "Unfavorite"));
+        } else {
+            quickActionMenu.addActionItem(new ActionItem(IdQuickActionFav, "Favorite"));
+        }
+
+        if (song.hasVideo()) {
+            quickActionMenu.addActionItem(new ActionItem(IdQuickActionPlayVideo, "Play Video") );
+        }
+
+        if (song.hasAudio()) {
+            quickActionMenu.addActionItem(new ActionItem(IdQuickActionPlayAudio, "Play Audio") );
+        }
+
+        quickActionMenu.setOnActionItemClickListener(new QuickAction.OnActionItemClickListener() {
+            @Override
+            public void onItemClick(QuickAction source, int pos, int actionId) {
+                onQuickActionSelected(view, song, actionId);
+            }
+        });
+
+        quickActionMenu.show(view);
+    }
+
+    private void onQuickActionSelected(View view, Song song, int actionId) {
+        if (actionId == IdQuickActionFav && !song.isFavourite()) {
+            song.setFavourite(true);
+            favourites.add(song.getId());
+            view.findViewById(R.id.img_favorite2).setVisibility(View.VISIBLE);
+            FavouritesStorage.add(this, song.getId());
+
+        } else if (actionId == IdQuickActionUnfav && song.isFavourite()) {
+            song.setFavourite(false);
+            favourites.remove(song.getId());
+            view.findViewById(R.id.img_favorite2).setVisibility(View.GONE);
+            FavouritesStorage.remove(this, song.getId());
+
+        } else if (actionId == IdQuickActionPlayAudio) {
+            startUrl(this, song.getAudioUrl());
+        } else if (actionId == IdQuickActionPlayVideo) {
+            startUrl(this,  song.getVideoUrl());
+        }
+    }
+
 
     private void showProgress() {
         progressDialog = new ProgressDialog(this);
@@ -241,13 +310,6 @@ public class SongsListActivity extends BaseListActivity {
         } catch (Exception ex) {
             Toast.makeText(this, "Can't load songs, sorry", 3);
         }
-    }
-
-    @Override
-    public void onCreateContextMenu(ContextMenu menu, View view, ContextMenu.ContextMenuInfo menuInfo) {
-        if (view != listView)
-            return;
-
     }
 }
 

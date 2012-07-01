@@ -1,12 +1,14 @@
 package com.alximik.capoeiralyrics.activities;
 
 import android.app.Activity;
+import android.content.Context;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.ListView;
 import android.widget.TextView;
 import com.alximik.capoeiralyrics.R;
 import com.alximik.capoeiralyrics.entities.Song;
+import com.alximik.capoeiralyrics.utils.SU;
 import com.alximik.capoeiralyrics.views.SongsAdapter;
 import com.markupartist.android.widget.ActionBar;
 
@@ -43,7 +45,6 @@ public class BaseListActivity extends Activity {
         listView.setAdapter(songsAdapter);
         emptyText = (TextView) findViewById(android.R.id.empty);
 
-        registerForContextMenu(listView);
         listView.setLongClickable(true);
     }
 
@@ -58,5 +59,13 @@ public class BaseListActivity extends Activity {
             listView.setVisibility(View.VISIBLE);
             emptyText.setVisibility(View.GONE);
         }
+    }
+
+    protected void startUrl(Context context, String url) {
+        if (SU.isEmpty(url)) {
+            return;
+        }
+
+
     }
 }

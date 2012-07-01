@@ -32,6 +32,11 @@ public class SongsAdapter extends ArrayAdapter<Song> {
         this.favs = favourites;
     }
 
+    @Override
+    public long getItemId(int position) {
+        return songs.get(position).getId();
+    }
+
     public View getView(int position, View convertView, ViewGroup parent) {
         
         if (convertView == null) {

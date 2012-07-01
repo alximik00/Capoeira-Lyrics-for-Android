@@ -5,12 +5,14 @@ import android.os.Parcelable;
 import android.util.Log;
 import com.alximik.capoeiralyrics.Constants;
 import com.alximik.capoeiralyrics.utils.JU;
+import com.alximik.capoeiralyrics.utils.SU;
 import com.j256.ormlite.field.DatabaseField;
 import com.j256.ormlite.table.DatabaseTable;
 import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.io.Serializable;
+import java.util.List;
 
 /**
  * Created by IntelliJ IDEA.
@@ -137,7 +139,7 @@ public class Song implements Parcelable, Serializable {
     }
      
     
-    public static Song findById(Song[] songs, long id) {
+    public static Song findById(List<Song> songs, long id) {
         for(Song song : songs) {
             if (song.id == id) {
                 return song;
@@ -145,6 +147,8 @@ public class Song implements Parcelable, Serializable {
         }
         return null;
     }
+
+
 
     //////// Implement Parcelable
     @Override
@@ -184,4 +188,12 @@ public class Song implements Parcelable, Serializable {
             return new Song[size];
         }
     };
+
+    public boolean hasVideo() {
+        return !SU.isEmpty(videoUrl);
+    }
+
+    public boolean hasAudio() {
+        return !SU.isEmpty(audioUrl);
+    }
 }
