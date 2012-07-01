@@ -20,7 +20,11 @@ public class JU {
 
     public static String getStringSafe(JSONObject object, String fieldName) {
         try {
-            return object.getString(fieldName);
+            String value = object.getString(fieldName);
+            if ("null".equals(value))
+                return null;
+            else
+                return value;
         } catch (JSONException e) {
             return null;
         }

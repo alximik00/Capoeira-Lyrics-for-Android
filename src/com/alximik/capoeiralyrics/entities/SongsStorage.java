@@ -9,6 +9,8 @@ import com.alximik.capoeiralyrics.MainApplication;
 import com.alximik.capoeiralyrics.utils.DatabaseHelper;
 import com.j256.ormlite.dao.Dao;
 import com.j256.ormlite.dao.DaoManager;
+import com.j256.ormlite.stmt.QueryBuilder;
+import com.j256.ormlite.stmt.Where;
 
 import java.io.*;
 import java.sql.SQLException;
@@ -29,10 +31,36 @@ public class SongsStorage {
         List<Song> songs = dao.queryForAll();
         return  songs.toArray(new Song[songs.size()]);
 
-//        SharedPreferences store = MainApplication.getContext().getSharedPreferences(STORE_NAME, 0);
-//        return deserializeSongsFromString(store.getString(SONGS_FIELD, null));
     }
     
+    public  static List<Song> load(Context context, String what, SearchType searchType) throws SQLException {
+        Dao<Song, Long> dao = new DatabaseHelper(context).getDao();
+
+        QueryBuilder<Song,Long> builder = dao.queryBuilder();
+        Where<Song, Long> where = builder.where();
+        //"title", "author", "engText", "rusText"
+
+        what = "%"+what+"%";
+
+        if (searchType == SearchType.ARTIST) {
+            return where.like("author", what)
+                    .query();
+        } else if (searchType == SearchType.NAME) {
+            return where.like("title", what)
+                    .query();
+        } else if (searchType == SearchType.TEXT) {
+            return where.like("engText", what).or().like("rusText", what).or().like("text", what)
+                    .query();
+        } else if (searchType == SearchType.ALL) {
+            return where.like("engText", what).or().like("rusText", what).or().like("text", what)
+                    .or().like("author", what)
+                    .or().like("title", what)
+                    .query();
+        }
+
+        return dao.queryForAll();
+    }
+
     public static void save(Context context, Song[] songs) throws Exception {
         Dao<Song, Long> dao = new DatabaseHelper(context).getDao();
         dao.deleteBuilder().delete();
@@ -42,39 +70,5 @@ public class SongsStorage {
             dao.create(song);
         }
 
-//        SharedPreferences settings = MainApplication.getContext().getSharedPreferences(STORE_NAME, 0);
-//        SharedPreferences.Editor editor = settings.edit();
-//        editor.putString(SONGS_FIELD, serializeSongsToString(songs));
-//        editor.commit();
-    }
-
-    private static String serializeSongsToString(Song[] songs) {
-        ByteArrayOutputStream out = new ByteArrayOutputStream();
-        try {
-            new ObjectOutputStream(out).writeObject(songs);
-            byte[] data = out.toByteArray();
-            out.close();
-
-            out = new ByteArrayOutputStream();
-            Base64OutputStream b64 = new Base64OutputStream(out, Base64.DEFAULT);
-            b64.write(data);
-            b64.close();
-            out.close();
-
-            return new String(out.toByteArray());
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-        return null;
-    }
-
-    private static Song[] deserializeSongsFromString(String data) {
-        try {
-            ObjectInputStream inStream = new ObjectInputStream(new Base64InputStream(new ByteArrayInputStream(data.getBytes()), Base64.DEFAULT));
-            return (Song[] ) inStream.readObject();
-        } catch (Exception e) {
-            e.printStackTrace();
-            return new Song[0];
-        }
     }
 }

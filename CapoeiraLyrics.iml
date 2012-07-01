@@ -38,8 +38,9 @@
     </content>
     <orderEntry type="jdk" jdkName="Android 2.3.3 Intel Atom x86 System Image" jdkType="Android SDK" />
     <orderEntry type="sourceFolder" forTests="false" />
-    <orderEntry type="library" name="libs" level="project" />
     <orderEntry type="library" name="ormlite-android-4.41" level="project" />
+    <orderEntry type="module" module-name="Actionbar" />
+    <orderEntry type="module" module-name="SegmentedRadioButton" />
   </component>
 </module>
 

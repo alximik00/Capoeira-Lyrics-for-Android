@@ -1,25 +1,104 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-              android:orientation="vertical"
-              android:layout_width="match_parent"
-              android:layout_height="match_parent"
-        >
+<LinearLayout
+        xmlns:android="http://schemas.android.com/apk/res/android"
+        android:orientation="vertical"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
 
-    <!-- com.markupartist.android.widget.PullToRefresh  -->
-    <ListView
-            android:id="@android:id/list"
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:layout_weight="1"
-            android:drawSelectorOnTop="false"/>
-            />
-
-    <TextView
-            android:id="@android:id/empty"
-            android:layout_width="match_parent"
+    <com.markupartist.android.widget.ActionBar
+            android:layout_width="fill_parent"
             android:layout_height="wrap_content"
-            android:text="No Songs"
-            android:gravity="center"
+            android:id="@+id/actionbar"
+            style="@style/ActionBar"
             />
-</LinearLayout>
+    <FrameLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent">
 
+        <LinearLayout
+                android:layout_width="fill_parent"
+                android:layout_height="fill_parent"
+                android:orientation="vertical">
+            <ListView
+                    android:id="@android:id/list"
+                    android:layout_width="match_parent"
+                    android:layout_height="fill_parent"
+                    android:layout_weight="1"
+                    android:drawSelectorOnTop="false"/>
+
+            <TextView
+                    android:visibility="gone"
+                    android:id="@android:id/empty"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="No Songs"
+                    android:gravity="center"
+                    />
+        </LinearLayout>
+
+        <LinearLayout
+                android:visibility="gone"
+                android:id="@+id/search_panel"
+                android:layout_width="fill_parent"
+                android:layout_height="fill_parent"
+                android:orientation="vertical"
+                android:background="#7666">
+
+            <EditText
+                    android:id="@+id/txt_search"
+                    android:layout_width="fill_parent"
+                    android:layout_height="wrap_content"
+                    android:hint="Search"
+                    android:singleLine="true"
+                    android:imeOptions="actionGo"
+                    />
+            <LinearLayout
+                    android:layout_width="fill_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="center_horizontal"
+                    android:orientation="vertical">
+                <com.makeramen.segmented.SegmentedRadioGroup
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:orientation="horizontal"
+                        android:id="@+id/radio_search_type"
+                        android:layout_gravity="center_horizontal"
+                        android:checkedButton="@+id/rb_all">
+                    <RadioButton android:id="@+id/rb_all"
+                         android:minWidth="40dip"
+                         android:minHeight="33dip"
+                         android:text="     All     "
+                         android:button="@null"
+                         android:gravity="center"
+                         android:paddingLeft="10dip"
+                         android:textAppearance="?android:attr/textAppearanceSmall" />
+                    <RadioButton android:id="@+id/rb_name"
+                         android:minWidth="40dip"
+                         android:minHeight="33dip"
+                         android:text="    Name    "
+                         android:button="@null"
+                         android:gravity="center"
+                         android:paddingLeft="10dip"
+                         android:textAppearance="?android:attr/textAppearanceSmall" />
+                    <RadioButton android:id="@+id/rb_text"
+                         android:minWidth="40dip"
+                         android:minHeight="33dip"
+                         android:text="    Text    "
+                         android:button="@null"
+                         android:gravity="center"
+                         android:paddingLeft="10dip"
+                         android:textAppearance="?android:attr/textAppearanceSmall" />
+                    <RadioButton
+                         android:id="@+id/rb_artist"
+                         android:minWidth="40dip"
+                         android:minHeight="33dip"
+                         android:text="  Artists  "
+                         android:button="@null"
+                         android:gravity="center"
+                         android:paddingLeft="10dip"
+                         android:textAppearance="?android:attr/textAppearanceSmall" />
+                </com.makeramen.segmented.SegmentedRadioGroup>
+            </LinearLayout>
+        </LinearLayout>
+    </FrameLayout>
+</LinearLayout>

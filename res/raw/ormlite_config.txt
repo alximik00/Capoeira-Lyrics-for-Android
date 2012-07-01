@@ -19,6 +19,10 @@ fieldName=author
 # --field-end--
 
 # --field-start--
+fieldName=text
+# --field-end--
+
+# --field-start--
 fieldName=engText
 # --field-end--
 

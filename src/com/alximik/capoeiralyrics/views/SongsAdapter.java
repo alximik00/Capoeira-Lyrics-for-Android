@@ -43,28 +43,30 @@ public class SongsAdapter extends ArrayAdapter<Song> {
         ImageView imgAudio = (ImageView) convertView.findViewById(R.id.img_audio);
         ImageView imgVideo = (ImageView) convertView.findViewById(R.id.img_video);
 
-        ImageView imgFav = (ImageView) convertView.findViewById(R.id.img_favorite);
         ImageView imgLogo = (ImageView) convertView.findViewById(R.id.img_logo);
+        ImageView imgFav = (ImageView) convertView.findViewById(R.id.img_favorite2);
 
         Song song = songs.get(position);
 
         txtArtist.setText(song.getAuthor());
-        txtTitle.setText(song.getAuthor());
+        txtTitle.setText(song.getTitle());
 
         setVisibilityOnString(imgEn, song.getEngText());
         setVisibilityOnString(imgRu, song.getRusText());
         setVisibilityOnString(imgAudio, song.getAudioUrl());
         setVisibilityOnString(imgVideo, song.getVideoUrl());
 
+        imgLogo.setImageDrawable(context.getResources().getDrawable( chooseLogo(song.getAuthor())  ));
+        //imgFav.setVisibility( song.isFavourite() ? View.VISIBLE : View.GONE );
+
         return convertView;
     }
 
     private void setVisibilityOnString(ImageView view, String text) {
-        if (SU.isEmpty(text)) {
-            view.setVisibility(View.VISIBLE);
-        } else {
-            view.setVisibility(View.GONE);
-        }
+        if (SU.isEmpty(text))
+            view.setVisibility( View.GONE );
+        else
+            view.setVisibility(  View.VISIBLE );
     }
 
     private int chooseLogo(String artist) {
