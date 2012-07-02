@@ -139,6 +139,8 @@ public abstract class BaseListActivity extends Activity {
         } else if (actionId == IdQuickActionPlayVideo) {
             startUrl(this,  song.getVideoUrl());
         }
+
+        searchPanel.setVisibility( View.GONE );
     }
 
     protected  abstract void doSearch(String text, SearchType searchTypeFromRagiogroup);
