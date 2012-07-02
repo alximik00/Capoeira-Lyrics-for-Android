@@ -3,6 +3,9 @@ package com.alximik.capoeiralyrics.entities;
 import android.content.Context;
 import com.alximik.capoeiralyrics.utils.DatabaseHelper;
 import com.j256.ormlite.dao.Dao;
+import com.j256.ormlite.stmt.DeleteBuilder;
+import com.j256.ormlite.stmt.PreparedQuery;
+import com.j256.ormlite.stmt.Where;
 
 import java.sql.SQLException;
 import java.util.HashSet;
@@ -54,8 +57,9 @@ public class FavouritesStorage {
     public static void remove(Context context, long id) {
         try {
             Dao<Favourite,Integer> dao = new DatabaseHelper(context).getFavouritesDao();
-            List<Favourite> favs = dao.queryBuilder().where().eq("songId", id).query();
-            dao.delete(favs);
+            DeleteBuilder<Favourite, Integer> builder = dao.deleteBuilder();
+            builder.where().eq("songId", id);
+            dao.delete( builder.prepare() );
         } catch (SQLException e) {
         }
     }
