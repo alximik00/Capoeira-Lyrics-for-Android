@@ -1,15 +1,15 @@
-package com.alximik.capoeiralyrics.entities;
+package com.alximik.capoeiralyrics.db;
 
 import android.content.Context;
-import com.alximik.capoeiralyrics.utils.DatabaseHelper;
+import com.alximik.capoeiralyrics.entities.SearchType;
+import com.alximik.capoeiralyrics.entities.Song;
+import com.alximik.capoeiralyrics.utils.SU;
 import com.j256.ormlite.dao.Dao;
 import com.j256.ormlite.stmt.QueryBuilder;
 import com.j256.ormlite.stmt.Where;
 
 import java.sql.SQLException;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 
 /**
  * Created by IntelliJ IDEA.
@@ -19,10 +19,11 @@ import java.util.Set;
  */
 public class SongsStorage {
 
-    public static Song[] load(Context context) throws Exception {
+    // Most STRANGE code here due to not working in-queries
+
+    public static List<Song> load(Context context) throws Exception {
         Dao<Song, Long> dao = new DatabaseHelper(context).getSongsDao();
-        List<Song> songs = dao.queryForAll();
-        return  songs.toArray(new Song[songs.size()]);
+        return  dao.queryBuilder().orderBy("title", true).query();
     }
     
     public  static List<Song> load(Context context, String what, SearchType searchType) throws SQLException {
@@ -33,11 +34,9 @@ public class SongsStorage {
         Dao<Song, Long> dao = new DatabaseHelper(context).getSongsDao();
 
         QueryBuilder<Song,Long> builder = dao.queryBuilder();
-        Where<Song, Long> where = builder.where();
+        Where<Song, Long> where = builder.orderBy("title", true).where();
         //"title", "author", "engText", "rusText"
-
         what = "%"+what+"%";
-
 
         if (searchType == SearchType.ARTIST) {
             where = where.like("author", what);
@@ -52,13 +51,20 @@ public class SongsStorage {
                     .or().like("author", what)
                     .or().like("title", what);
         }
+        List<Song> res = where.query();
         if (favourites != null) {
-            where = where.in("id", favourites);
+            List<Song> filtered = new ArrayList<Song>();
+            for(Song song: res) {
+                if (favourites.contains( song.getId() ) ) {
+                    filtered.add( song );
+                }
+            }
+            res = filtered;
         }
-        return where.query();
+        return res;
     }
 
-    public static void save(Context context, Song[] songs) throws Exception {
+    public static void save(Context context, List<Song> songs) throws Exception {
         Dao<Song, Long> dao = new DatabaseHelper(context).getSongsDao();
         dao.deleteBuilder().delete();
         dao.clearObjectCache();
@@ -70,10 +76,20 @@ public class SongsStorage {
 
     public static List<Song> loadFavourites(Context context, Set<Long> favourites) throws SQLException {
         Dao<Song, Long> dao = new DatabaseHelper(context).getSongsDao();
-        List<Song> res = new ArrayList<Song>(favourites.size());
+        List<Song> songs = new ArrayList<Song>(favourites.size());
         for(long id: favourites) {
-            res.add( dao.queryForId(id) );
+            songs.add(dao.queryForId(id));
         }
-        return res;
+        Collections.sort(songs, new Comparator<Song>() {
+            @Override
+            public int compare(Song song, Song song1) {
+                int res =   SU.emptify( song.getTitle() ).compareTo(song1.getTitle());
+                if (res != 0)
+                    return res;
+
+                return SU.emptify( song.getAuthor() ).compareTo(song1.getAuthor());
+            }
+        });
+        return  songs;
     }
 }

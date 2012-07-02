@@ -2,12 +2,17 @@ package com.alximik.capoeiralyrics.activities;
 
 import android.app.Activity;
 import android.content.Context;
+import android.net.ConnectivityManager;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.KeyEvent;
 import android.view.View;
 import android.view.inputmethod.EditorInfo;
+import android.view.inputmethod.InputMethodManager;
 import android.widget.*;
+import com.alximik.capoeiralyrics.Constants;
 import com.alximik.capoeiralyrics.R;
+import com.alximik.capoeiralyrics.db.FavouritesStorage;
 import com.alximik.capoeiralyrics.entities.SearchType;
 import com.alximik.capoeiralyrics.entities.Song;
 import com.alximik.capoeiralyrics.utils.SU;
@@ -50,11 +55,11 @@ public abstract class BaseListActivity extends Activity {
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        setContentView(R.layout.main_list);
+        setContentView(R.layout.songs_list);
 
         actionBar = (ActionBar) findViewById(R.id.actionbar);
 
-        songsAdapter = new SongsAdapter(this, R.id.txt_title, songs,favourites);
+        songsAdapter = new SongsAdapter(this, R.id.txt_title, songs);
         listView = (ListView) findViewById(android.R.id.list);
         listView.setAdapter(songsAdapter);
         emptyText = (TextView) findViewById(android.R.id.empty);
@@ -67,9 +72,11 @@ public abstract class BaseListActivity extends Activity {
             @Override
             public boolean onEditorAction(TextView textView, int actionId, KeyEvent keyEvent) {
                 if (actionId == EditorInfo.IME_ACTION_GO) {
-                    onStartSearch(searchTextField.getText().toString(), getSearchTypeFromRagiogroup() );
+                    doSearch(searchTextField.getText().toString(), getSearchTypeFromRagiogroup());
                     searchPanel.setVisibility(View.GONE);
-                    searchTextField.requestFocus();
+                    InputMethodManager imm = (InputMethodManager)getSystemService( Context.INPUT_METHOD_SERVICE );
+                    imm.hideSoftInputFromWindow(searchTextField.getWindowToken(), 0);
+                    listView.requestFocus();
                     return true;
                 }
                 return false;
@@ -81,7 +88,7 @@ public abstract class BaseListActivity extends Activity {
         listView.setOnItemLongClickListener(new AdapterView.OnItemLongClickListener() {
             @Override
             public boolean onItemLongClick(AdapterView<?> adapterView, View view, int index, long id) {
-                Song song = Song.findById(songs, id);
+                Song song = songs.get(index);
                 onSongLongClick(view, song);
                 return true;
             }
@@ -114,9 +121,27 @@ public abstract class BaseListActivity extends Activity {
         quickActionMenu.show(view);
     }
 
-    protected abstract void onQuickActionSelected(View view, Song song, int actionId);
+    protected void onQuickActionSelected(View view, Song song, int actionId) {
+        if (actionId == IdQuickActionFav && !song.isFavourite()) {
+            song.setFavourite(true);
+            favourites.add(song.getId());
+            view.findViewById(R.id.img_favorite2).setVisibility(View.VISIBLE);
+            FavouritesStorage.add(this, song.getId());
 
-    protected  abstract void onStartSearch(String text, SearchType searchTypeFromRagiogroup);
+        } else if (actionId == IdQuickActionUnfav && song.isFavourite()) {
+            song.setFavourite(false);
+            favourites.remove(song.getId());
+            view.findViewById(R.id.img_favorite2).setVisibility(View.GONE);
+            FavouritesStorage.remove(this, song.getId());
+
+        } else if (actionId == IdQuickActionPlayAudio) {
+            startUrl(this, song.getAudioUrl());
+        } else if (actionId == IdQuickActionPlayVideo) {
+            startUrl(this,  song.getVideoUrl());
+        }
+    }
+
+    protected  abstract void doSearch(String text, SearchType searchTypeFromRagiogroup);
 
     protected void showSearch() {
         searchPanel.setVisibility(View.VISIBLE);
@@ -142,10 +167,20 @@ public abstract class BaseListActivity extends Activity {
         return super.onKeyDown(keyCode, event);
     }
 
-    protected void setNewSongs(List<Song> newContent) {
+    protected void setNewSongs(List<Song> newContent, Set<Long> favourites) {
         songs.clear();
         songs.addAll(newContent);
+        int count = 0;
+        for(Song song: songs) {
+            if (favourites.contains(song.getId())) {
+                song.setFavourite(true);
+                count++;
+            }
+        }
+        Log.i(Constants.TAG, "Set " + count + " favourites");
+
         songsAdapter.notifyDataSetInvalidated();
+
         if (songs.size() ==0 ) {
             listView.setVisibility(View.GONE);
             emptyText.setVisibility(View.VISIBLE);
@@ -170,5 +205,12 @@ public abstract class BaseListActivity extends Activity {
             case R.id.rb_artist: return SearchType.ARTIST;
             default: return SearchType.NONE;
         }
+    }
+
+    protected boolean isOnline() {
+        ConnectivityManager cm = (ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE);
+
+        return cm.getActiveNetworkInfo() != null &&
+                cm.getActiveNetworkInfo().isConnectedOrConnecting();
     }
 }

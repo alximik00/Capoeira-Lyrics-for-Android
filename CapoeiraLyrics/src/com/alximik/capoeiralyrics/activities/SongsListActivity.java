@@ -11,16 +11,15 @@ import android.widget.*;
 import com.alximik.capoeiralyrics.Constants;
 import com.alximik.capoeiralyrics.MainApplication;
 import com.alximik.capoeiralyrics.R;
-import com.alximik.capoeiralyrics.entities.FavouritesStorage;
+import com.alximik.capoeiralyrics.db.FavouritesStorage;
 import com.alximik.capoeiralyrics.entities.SearchType;
 import com.alximik.capoeiralyrics.entities.Song;
-import com.alximik.capoeiralyrics.entities.SongsStorage;
+import com.alximik.capoeiralyrics.db.SongsStorage;
 import com.alximik.capoeiralyrics.network.Api;
 import com.alximik.capoeiralyrics.network.SongsCallback;
 import com.markupartist.android.widget.ActionBar;
-import net.londatiga.android.ActionItem;
-import net.londatiga.android.QuickAction;
 
+import java.sql.SQLException;
 import java.util.*;
 
 
@@ -77,7 +76,7 @@ public class SongsListActivity extends BaseListActivity {
             @Override
             public void performAction(View view) {
                 Intent intent = new Intent(SongsListActivity.this, FavouritesActivity.class);
-                startActivity(intent);
+                startActivityForResult(intent, Constants.ID_FAVOURITES);
             }
         });
     }
@@ -91,13 +90,8 @@ public class SongsListActivity extends BaseListActivity {
 
 
         try {
-            Song[] newSongs = SongsStorage.load(this);
-            for(Song song: newSongs) {
-                if (favourites.contains(song.getId())) {
-                    song.setFavourite(true);
-                }
-            }
-            setNewSongs( Arrays.asList(newSongs) );
+            List<Song> newSongs = SongsStorage.load(this);
+            setNewSongs( newSongs, favourites );
         } catch (Exception e) { }
 
         if (MainApplication.isUpdateAsked())
@@ -107,6 +101,9 @@ public class SongsListActivity extends BaseListActivity {
             showProgress();
             startLoad();
         } else {
+            if (!isOnline())
+                return;
+
             DialogInterface.OnClickListener onOk = new DialogInterface.OnClickListener() {
                 @Override
                 public void onClick(DialogInterface dialogInterface, int which) {
@@ -133,27 +130,6 @@ public class SongsListActivity extends BaseListActivity {
         }
     }
 
-    protected void onQuickActionSelected(View view, Song song, int actionId) {
-        if (actionId == IdQuickActionFav ) {
-            song.setFavourite(true);
-            favourites.add(song.getId());
-            view.findViewById(R.id.img_favorite2).setVisibility(View.VISIBLE);
-            FavouritesStorage.add(this, song.getId());
-
-        } else if (actionId == IdQuickActionUnfav ) {
-            song.setFavourite(false);
-            favourites.remove(song.getId());
-            view.findViewById(R.id.img_favorite2).setVisibility(View.GONE);
-            FavouritesStorage.remove(this, song.getId());
-
-        } else if (actionId == IdQuickActionPlayAudio) {
-            startUrl(this, song.getAudioUrl());
-        } else if (actionId == IdQuickActionPlayVideo) {
-            startUrl(this,  song.getVideoUrl());
-        }
-    }
-
-
     private void showProgress() {
         progressDialog = new ProgressDialog(this);
         progressDialog.setMessage("Loading songs");
@@ -163,31 +139,27 @@ public class SongsListActivity extends BaseListActivity {
     private void startLoad() {
         Api.getSongs(new SongsCallback() {
             @Override
-            public void onSuccess(final Song[] songs) {
+            public void onSuccess(final List<Song> songs) {
                 handler.post(new Runnable() {
                     @Override
                     public void run() {
-                        onSongsLoaded(songs);
+                        onSongsDownloaded(songs);
                     }
                 });
             }
 
             @Override
             public void onError(String error) {
+                Toast.makeText(SongsListActivity.this, "Sorry, couldn't load songs :(", 4);
                 Log.wtf(Constants.TAG, "Songs loading:" + error);
             }
         });
     }
 
-    private void onSongsLoaded(final Song[] newSongs) {
-        saveSongs(newSongs);
-        if (progressDialog != null)
-            progressDialog.dismiss();
-    }
+    private void onSongsDownloaded(final List<Song> newSongs) {
+        setNewSongs(newSongs, favourites);
 
-    private void saveSongs(final Song[] newSongs) {
-        setNewSongs(Arrays.asList(newSongs));
-
+        // Write songs to storage in background
         Thread saveThread = new Thread() {
             public void run() {
                 try {
@@ -198,18 +170,37 @@ public class SongsListActivity extends BaseListActivity {
             }
         };
         saveThread.start();
+        if (progressDialog != null)
+            progressDialog.dismiss();
     }
 
 
-    protected void onStartSearch(String text, SearchType searchType) {
+    protected void doSearch(String text, SearchType searchType) {
         try {
             List<Song> newContent = SongsStorage.load(this, text, searchType);
-            setNewSongs(newContent);
+            setNewSongs(newContent, favourites);
         } catch (Exception ex) {
             Toast.makeText(this, "Can't load songs, sorry", 3);
         }
     }
 
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        if (requestCode == Constants.ID_FAVOURITES ) {
+
+            try {
+                Set<Long> newFavs = FavouritesStorage.loadFavourites(this);
+                favourites.clear();
+                favourites.addAll(newFavs);
+
+                for(Song song: songs) {
+                    song.setFavourite( favourites.contains(song.getId()) );
+                }
+                songsAdapter.notifyDataSetChanged();
+            } catch (SQLException e) {
+            }
+        }
+    }
+    
 }
 
 

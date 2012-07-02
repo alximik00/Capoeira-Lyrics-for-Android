@@ -27,21 +27,29 @@
                 android:id="@+id/txt_title"
                 android:layout_marginTop="2dip"
                 android:layout_marginLeft="10dip"
+                android:layout_marginRight="20dip"
                 android:textStyle="bold"
-                android:textSize="17dip"
+                android:textSize="16dip"
 
                 android:layout_height="wrap_content"
                 android:layout_width="wrap_content"
                 android:text="Title"
+
+                android:singleLine="true"
+                android:ellipsize="end"
                 android:textColor="#000"/>
+
         <TextView
                 android:id="@+id/txt_artist"
                 android:layout_marginLeft="10dip"
+                android:layout_marginRight="20dip"
                 android:textSize="14dip"
 
                 android:layout_height="wrap_content"
                 android:layout_width="wrap_content"
-                android:text="Title"
+                android:text="Artist"
+                android:singleLine="true"
+                android:ellipsize="end"
                 android:textColor="#777"/>
         <LinearLayout
                 android:layout_width="fill_parent"

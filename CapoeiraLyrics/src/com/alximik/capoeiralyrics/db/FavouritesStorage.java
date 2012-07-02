@@ -1,11 +1,9 @@
-package com.alximik.capoeiralyrics.entities;
+package com.alximik.capoeiralyrics.db;
 
 import android.content.Context;
-import com.alximik.capoeiralyrics.utils.DatabaseHelper;
+import com.alximik.capoeiralyrics.entities.Favourite;
 import com.j256.ormlite.dao.Dao;
 import com.j256.ormlite.stmt.DeleteBuilder;
-import com.j256.ormlite.stmt.PreparedQuery;
-import com.j256.ormlite.stmt.Where;
 
 import java.sql.SQLException;
 import java.util.HashSet;
@@ -23,7 +21,6 @@ public class FavouritesStorage {
     public static Set<Long> loadFavourites(Context context) throws SQLException {
         Dao<Favourite,Integer> dao = new DatabaseHelper(context).getFavouritesDao();
 
-
         List<Favourite> favs = dao.queryBuilder().orderBy("songId",true).query();
 
         Set<Long> res = new HashSet<Long>(favs.size());
@@ -31,14 +28,6 @@ public class FavouritesStorage {
             res.add(fav.getSongId());
         }
         return res;
-    }
-
-    public static void saveFavourites(Context context, Set<Long> favs) throws SQLException {
-        Dao<Favourite,Integer> dao = new DatabaseHelper(context).getFavouritesDao();
-        dao.deleteBuilder().delete();
-        for (long fav: favs) {
-            dao.create(new Favourite(fav));
-        }
     }
 
     public static void add(Context context, long id) {

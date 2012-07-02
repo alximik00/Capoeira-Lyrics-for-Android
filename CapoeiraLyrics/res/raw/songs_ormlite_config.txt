@@ -4,7 +4,7 @@ tableName=songs
 # --table-fields-start--
 # --field-start--
 fieldName=id
-generatedId=true
+id=true
 # --field-end--
 
 # --field-start--

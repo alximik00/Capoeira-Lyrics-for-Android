@@ -23,7 +23,7 @@ import java.util.List;
 @DatabaseTable(tableName = "songs")
 public class Song implements Parcelable, Serializable {
 
-    @DatabaseField(generatedId = true)
+    @DatabaseField(id = true)
     private long id;
 
     @DatabaseField private String title;

@@ -1,4 +1,4 @@
-package com.alximik.capoeiralyrics.utils;
+package com.alximik.capoeiralyrics.db;
 
 import android.database.sqlite.SQLiteOpenHelper;
 import com.alximik.capoeiralyrics.R;
@@ -34,7 +34,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 
     private static final String DATABASE_NAME = "cap_lyr.db";
     private static final String TAG = "alx_db";
-    private static final int DATABASE_VERSION = 1;
+    private static final int DATABASE_VERSION = 2;
 
     private Dao<Song, Long> songDao = null;
     private Dao<Favourite, Integer> favouritesDao = null;

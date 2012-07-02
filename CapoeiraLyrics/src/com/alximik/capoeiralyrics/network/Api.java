@@ -10,6 +10,8 @@ import org.json.JSONArray;
 import org.json.JSONException;
 
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * Created by IntelliJ IDEA.
@@ -26,8 +28,9 @@ public class Api {
     }
 
     private static String getSongsSync() throws IOException {
-        String url = constants.getServerUrl() + "/JSONAPI/AllSongsFull?token=" + constants.getSecurityToken();
+        //String url = constants.getServerUrl() + "/JSONAPI/AllSongsFull?token=" + constants.getSecurityToken();
 
+        String url = "http://dl.dropbox.com/u/5324061/sample.json";
         HttpClient client = new DefaultHttpClient();
 
         HttpGet request = new HttpGet(url);
@@ -51,13 +54,12 @@ public class Api {
                     String data = getSongsSync();
                     JSONArray array = new JSONArray(data);
                     
-                    Song[] result = new Song[array.length()];
+                    List<Song> result = new ArrayList<Song>(array.length());
                     for(int i=0; i<array.length(); i++) {
-                        result[i] = Song.fromJson(array.getJSONObject(i));
+                        result.add(  Song.fromJson(array.getJSONObject(i)) );
                     }
 
                     callback.onSuccess(result);
-                    
                 } catch (IOException e) {
                     callback.onError("Couldn't connect server");
                 } catch (JSONException e) {

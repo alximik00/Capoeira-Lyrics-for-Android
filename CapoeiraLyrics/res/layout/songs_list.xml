@@ -27,6 +27,7 @@
                     android:drawSelectorOnTop="false"/>
 
             <TextView
+                    android:layout_marginTop="10dip"
                     android:visibility="gone"
                     android:id="@android:id/empty"
                     android:layout_width="match_parent"

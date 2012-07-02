@@ -23,18 +23,21 @@ import java.util.Set;
 public class SongsAdapter extends ArrayAdapter<Song> {
     private Activity context;
     private List<Song> songs;
-    private Set<Long> favs;
 
-    public SongsAdapter(Activity context, int textViewResourceId, List<Song> songs, Set<Long> favourites) {
+    public SongsAdapter(Activity context, int textViewResourceId, List<Song> songs) {
         super(context, textViewResourceId, songs);
         this.context = context;
         this.songs = songs;
-        this.favs = favourites;
     }
 
     @Override
     public long getItemId(int position) {
         return songs.get(position).getId();
+    }
+
+    @Override
+    public boolean hasStableIds() {
+        return false;
     }
 
     public View getView(int position, View convertView, ViewGroup parent) {
@@ -55,7 +58,7 @@ public class SongsAdapter extends ArrayAdapter<Song> {
 
         Song song = songs.get(position);
 
-        txtArtist.setText(song.getAuthor());
+        txtArtist.setText( SU.emptify(song.getAuthor()) ) ;
         txtTitle.setText(song.getTitle());
 
         setVisibilityOnString(imgEn, song.getEngText());
@@ -65,7 +68,7 @@ public class SongsAdapter extends ArrayAdapter<Song> {
         setVisibilityOnString(imgVideo, song.getVideoUrl());
 
         imgLogo.setImageDrawable(context.getResources().getDrawable( chooseLogo(song.getAuthor())  ));
-        imgFav.setVisibility( favs.contains(song.getId()) ? View.VISIBLE : View.GONE );
+        imgFav.setVisibility( song.isFavourite() ? View.VISIBLE : View.GONE );
 
         return convertView;
     }

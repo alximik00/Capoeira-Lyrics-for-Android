@@ -4,15 +4,12 @@ import android.os.Bundle;
 import android.view.View;
 import android.widget.Toast;
 import com.alximik.capoeiralyrics.R;
-import com.alximik.capoeiralyrics.entities.FavouritesStorage;
+import com.alximik.capoeiralyrics.db.FavouritesStorage;
 import com.alximik.capoeiralyrics.entities.SearchType;
 import com.alximik.capoeiralyrics.entities.Song;
-import com.alximik.capoeiralyrics.entities.SongsStorage;
+import com.alximik.capoeiralyrics.db.SongsStorage;
 import com.markupartist.android.widget.ActionBar;
-import net.londatiga.android.ActionItem;
-import net.londatiga.android.QuickAction;
 
-import java.util.Arrays;
 import java.util.List;
 import java.util.Set;
 
@@ -40,7 +37,7 @@ public class FavouritesActivity extends BaseListActivity {
 
         try {
             List<Song> loadedSongs = SongsStorage.loadFavourites(this, favourites);
-            setNewSongs( loadedSongs );
+            setNewSongs( loadedSongs , favourites);
         } catch (Exception e) { }
     }
 
@@ -56,38 +53,36 @@ public class FavouritesActivity extends BaseListActivity {
                 finish();
             }
         });
+
+        actionBar.addAction(new ActionBar.Action() {
+            @Override
+            public int getDrawable() {
+                return R.drawable.search;
+            }
+
+            @Override
+            public void performAction(View view) {
+                showSearch();
+            }
+        });
     }
 
-    protected void onStartSearch(String text, SearchType searchType) {
+    protected void doSearch(String text, SearchType searchType) {
         try {
             List<Song> newContent = SongsStorage.load(this, text, searchType, favourites);
-            setNewSongs(newContent);
+            setNewSongs(newContent, favourites);
         } catch (Exception ex) {
             Toast.makeText(this, "Can't load songs, sorry", 3);
         }
     }
 
+    @Override
     protected void onQuickActionSelected(View view, Song song, int actionId) {
-        if (actionId == IdQuickActionFav && !song.isFavourite()) {
-            song.setFavourite(true);
-            favourites.add(song.getId());
-            view.findViewById(R.id.img_favorite2).setVisibility(View.VISIBLE);
-            FavouritesStorage.add(this, song.getId());
+        super.onQuickActionSelected(view, song, actionId);
 
-        } else if (actionId == IdQuickActionUnfav && song.isFavourite()) {
-            Song found = Song.findById(songs, song.getId() );
-            if (found != null)
-                songs.remove( found );
-            
-            song.setFavourite(false);
-            favourites.remove(song.getId());
-            view.findViewById(R.id.img_favorite2).setVisibility(View.GONE);
-            FavouritesStorage.remove(this, song.getId());
-
-        } else if (actionId == IdQuickActionPlayAudio) {
-            startUrl(this, song.getAudioUrl());
-        } else if (actionId == IdQuickActionPlayVideo) {
-            startUrl(this,  song.getVideoUrl());
+        if (actionId == IdQuickActionUnfav ) {
+            songs.remove( song );
+            songsAdapter.notifyDataSetChanged();
         }
     }
 }

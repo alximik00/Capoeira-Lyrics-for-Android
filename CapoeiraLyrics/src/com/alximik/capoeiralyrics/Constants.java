@@ -8,4 +8,7 @@ package com.alximik.capoeiralyrics;
  */
 public class Constants {
     public static final String TAG = "alximik.capoeira";
+
+    public static final int ID_FAVOURITES = 0x11110001;
+    public static final int ID_FAVOURITES_CHANGED = 0x11110002;
 }

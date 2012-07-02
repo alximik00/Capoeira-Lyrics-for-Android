@@ -1,4 +1,4 @@
-package com.alximik.capoeiralyrics.utils;
+package com.alximik.capoeiralyrics.db;
 
 import com.j256.ormlite.android.apptools.OrmLiteConfigUtil;
 
