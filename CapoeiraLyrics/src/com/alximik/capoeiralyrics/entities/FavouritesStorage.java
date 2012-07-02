@@ -54,7 +54,8 @@ public class FavouritesStorage {
     public static void remove(Context context, long id) {
         try {
             Dao<Favourite,Integer> dao = new DatabaseHelper(context).getFavouritesDao();
-            dao.deleteBuilder().where().eq("songId", id).query();
+            List<Favourite> favs = dao.queryBuilder().where().eq("songId", id).query();
+            dao.delete(favs);
         } catch (SQLException e) {
         }
     }

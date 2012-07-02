@@ -134,13 +134,13 @@ public class SongsListActivity extends BaseListActivity {
     }
 
     protected void onQuickActionSelected(View view, Song song, int actionId) {
-        if (actionId == IdQuickActionFav && !song.isFavourite()) {
+        if (actionId == IdQuickActionFav ) {
             song.setFavourite(true);
             favourites.add(song.getId());
             view.findViewById(R.id.img_favorite2).setVisibility(View.VISIBLE);
             FavouritesStorage.add(this, song.getId());
 
-        } else if (actionId == IdQuickActionUnfav && song.isFavourite()) {
+        } else if (actionId == IdQuickActionUnfav ) {
             song.setFavourite(false);
             favourites.remove(song.getId());
             view.findViewById(R.id.img_favorite2).setVisibility(View.GONE);
