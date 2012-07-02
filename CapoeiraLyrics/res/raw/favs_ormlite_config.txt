@@ -1,0 +1,17 @@
+
+# --table-start--
+dataClass=com.alximik.capoeiralyrics.entities.Favourite
+tableName=favs
+# --table-fields-start--
+
+# --field-start--
+fieldName=id
+generatedId=true
+# --field-end--
+
+# --field-start--
+fieldName=songId
+# --field-end--
+
+# --table-fields-end--
+# --table-end--

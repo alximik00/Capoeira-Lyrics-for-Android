@@ -1,7 +1,6 @@
 package com.alximik.capoeiralyrics.entities;
 
 import android.content.Context;
-import com.alximik.capoeiralyrics.activities.FavouritesActivity;
 import com.alximik.capoeiralyrics.utils.DatabaseHelper;
 import com.j256.ormlite.dao.Dao;
 import com.j256.ormlite.stmt.QueryBuilder;
@@ -27,6 +26,10 @@ public class SongsStorage {
     }
     
     public  static List<Song> load(Context context, String what, SearchType searchType) throws SQLException {
+        return load(context, what, searchType, null);
+    }
+    
+    public static List<Song> load(Context context, String what, SearchType searchType, Set<Long> favourites) throws SQLException {
         Dao<Song, Long> dao = new DatabaseHelper(context).getSongsDao();
 
         QueryBuilder<Song,Long> builder = dao.queryBuilder();
@@ -35,23 +38,24 @@ public class SongsStorage {
 
         what = "%"+what+"%";
 
-        if (searchType == SearchType.ARTIST) {
-            return where.like("author", what)
-                    .query();
-        } else if (searchType == SearchType.NAME) {
-            return where.like("title", what)
-                    .query();
-        } else if (searchType == SearchType.TEXT) {
-            return where.like("engText", what).or().like("rusText", what).or().like("text", what)
-                    .query();
-        } else if (searchType == SearchType.ALL) {
-            return where.like("engText", what).or().like("rusText", what).or().like("text", what)
-                    .or().like("author", what)
-                    .or().like("title", what)
-                    .query();
-        }
 
-        return dao.queryForAll();
+        if (searchType == SearchType.ARTIST) {
+            where = where.like("author", what);
+        } else if (searchType == SearchType.NAME) {
+            where = where.like("title", what);
+        } else if (searchType == SearchType.TEXT) {
+            where = where.like("engText", what).or().like("rusText", what).or().like("text", what);
+        } else if (searchType == SearchType.ALL) {
+            where = where.like("engText", what)
+                    .or().like("rusText", what)
+                    .or().like("text", what)
+                    .or().like("author", what)
+                    .or().like("title", what);
+        }
+        if (favourites != null) {
+            where = where.in("id", favourites);
+        }
+        return where.query();
     }
 
     public static void save(Context context, Song[] songs) throws Exception {

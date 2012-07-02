@@ -8,13 +8,8 @@ import org.apache.http.impl.client.DefaultHttpClient;
 import org.apache.http.util.EntityUtils;
 import org.json.JSONArray;
 import org.json.JSONException;
-import org.json.JSONObject;
 
 import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
-import java.io.StringReader;
-import java.util.concurrent.ThreadPoolExecutor;
 
 /**
  * Created by IntelliJ IDEA.
@@ -23,7 +18,7 @@ import java.util.concurrent.ThreadPoolExecutor;
  * @since 6/28/12 6:41 PM
  */
 public class Api {
-    static Constants constants;
+    static ApiConstants constants;
     static {
         if (constants == null) {
             constants  = new Constants();
