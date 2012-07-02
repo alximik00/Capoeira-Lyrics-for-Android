@@ -76,7 +76,7 @@ public class SongsListActivity extends BaseListActivity {
             @Override
             public void performAction(View view) {
                 Intent intent = new Intent(SongsListActivity.this, FavouritesActivity.class);
-                startActivityForResult(intent, Constants.ID_FAVOURITES);
+                startActivityForResult(intent, Constants.FAVOURITES_INTENT);
             }
         });
     }
@@ -185,7 +185,7 @@ public class SongsListActivity extends BaseListActivity {
     }
 
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
-        if (requestCode == Constants.ID_FAVOURITES ) {
+        if (requestCode == Constants.FAVOURITES_INTENT) {
 
             try {
                 Set<Long> newFavs = FavouritesStorage.loadFavourites(this);

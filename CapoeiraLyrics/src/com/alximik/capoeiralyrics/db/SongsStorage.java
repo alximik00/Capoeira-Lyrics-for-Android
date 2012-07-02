@@ -92,4 +92,13 @@ public class SongsStorage {
         });
         return  songs;
     }
+
+    public static Song findById(Context context, long id) {
+        try {
+            Dao<Song, Long> dao = new DatabaseHelper(context).getSongsDao();
+            return dao.queryForId(id);
+        } catch (SQLException e) {
+            return null;
+        }
+    }
 }

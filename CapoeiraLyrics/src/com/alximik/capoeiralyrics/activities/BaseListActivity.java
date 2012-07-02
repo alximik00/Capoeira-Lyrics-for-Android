@@ -2,6 +2,7 @@ package com.alximik.capoeiralyrics.activities;
 
 import android.app.Activity;
 import android.content.Context;
+import android.content.Intent;
 import android.net.ConnectivityManager;
 import android.os.Bundle;
 import android.util.Log;
@@ -93,6 +94,13 @@ public abstract class BaseListActivity extends Activity {
                 return true;
             }
         });
+        listView.setOnItemClickListener( new AdapterView.OnItemClickListener() {
+            @Override
+            public void onItemClick(AdapterView<?> adapterView, View view, int index, long l) {
+                Song song = songs.get(index);
+                onSongClicked(view, song);
+            }
+        });
     }
 
     protected void onSongLongClick(final View view, final Song song) {
@@ -119,6 +127,12 @@ public abstract class BaseListActivity extends Activity {
         });
 
         quickActionMenu.show(view);
+    }
+
+    protected void onSongClicked(View view, Song song) {
+        Intent intent = new Intent(this, DetailsViewActivity.class);
+        intent.putExtra(Constants.SONG_ID, song.getId());
+        startActivity(intent);
     }
 
     protected void onQuickActionSelected(View view, Song song, int actionId) {

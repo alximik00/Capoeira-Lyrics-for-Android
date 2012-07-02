@@ -42,6 +42,7 @@
     <orderEntry type="module" module-name="Actionbar" />
     <orderEntry type="module" module-name="SegmentedRadioButton" />
     <orderEntry type="module" module-name="Lorensiuswlt-NewQuickAction" />
+    <orderEntry type="library" name="uk.co.jasonfry.android.tools" level="project" />
   </component>
 </module>
 
