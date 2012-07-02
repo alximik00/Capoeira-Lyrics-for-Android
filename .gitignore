@@ -11,3 +11,12 @@
 /LibraryProjects/android-segmentedradiobutton/.gitignore
 /LibraryProjects/android-segmentedradiobutton/out/*
 /LibraryProjects/lorensiuswlt-NewQuickAction/bin/*
+
+/LibraryProjects/android-actionbar/johannilsson-android-actionbar-1830dfd/actionbar/gen/*
+/LibraryProjects/android-segmentedradiobutton/gen/*
+
+out/*
+.idea/*
+
+/CapoeiraLyrics/libs/ormlite-android-4.41-sources.jar
+/CapoeiraLyrics/libs/ormlite-core-4.41-sources.jar
