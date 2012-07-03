@@ -28,9 +28,10 @@ public class Api {
     }
 
     private static String getSongsSync() throws IOException {
-        //String url = constants.getServerUrl() + "/JSONAPI/AllSongsFull?token=" + constants.getSecurityToken();
+        // Test api - only 5 songs
+        //String url = "http://dl.dropbox.com/u/5324061/sample.json";
+        String url = constants.getServerUrl() + "/JSONAPI/AllSongsFull?token=" + constants.getSecurityToken();
 
-        String url = "http://dl.dropbox.com/u/5324061/sample.json";
         HttpClient client = new DefaultHttpClient();
 
         HttpGet request = new HttpGet(url);
