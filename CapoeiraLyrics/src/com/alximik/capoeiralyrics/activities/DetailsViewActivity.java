@@ -7,7 +7,6 @@ import android.graphics.Typeface;
 import android.os.Bundle;
 import android.text.SpannableString;
 import android.text.style.StyleSpan;
-import android.util.Pair;
 import android.util.TypedValue;
 import android.view.Gravity;
 import android.view.View;
@@ -24,7 +23,6 @@ import uk.co.jasonfry.android.tools.ui.PageControl;
 import uk.co.jasonfry.android.tools.ui.SwipeView;
 
 import java.util.ArrayList;
-import java.util.List;
 
 /**
  * Created by IntelliJ IDEA.
@@ -57,7 +55,7 @@ public class DetailsViewActivity extends Activity {
         if (song == null) {
             new AlertDialog.Builder(this)
                     .setTitle("Song not found")
-                    .setMessage("Sorry, somehow I couldnt find the song. Please try again :(")
+                    .setMessage("Sorry, somehow I couldn't find the song. Please try again :(")
                     .setPositiveButton("Back", new DialogInterface.OnClickListener() {
                         @Override
                         public void onClick(DialogInterface dialogInterface, int i) {
@@ -71,9 +69,12 @@ public class DetailsViewActivity extends Activity {
 
         SwipeView swipeView = (SwipeView) findViewById(R.id.swipe_view);
         PageControl pageControl = (PageControl) findViewById(R.id.page_control);
+        swipeView.setPageControl(pageControl);
 
-        swipeView.addView(constructView());
-
+        for (int i=0; i<texts.size(); i++) {
+            SpannableString text =  texts.get(i);
+            swipeView.addView(constructView(text, song.getTitle(), i));
+        }
     }
 
     private void createTexts(Song song) {
@@ -91,34 +92,47 @@ public class DetailsViewActivity extends Activity {
         }
     }
 
-    private View constructView() {
+    private View constructView(SpannableString text, String title, int index) {
         LinearLayout linear = new LinearLayout(this);
         linear.setOrientation(LinearLayout.VERTICAL);
-
-        LinearLayout.LayoutParams params = new LinearLayout.LayoutParams(LinearLayout.LayoutParams.FILL_PARENT, LinearLayout.LayoutParams.FILL_PARENT);
-        params.leftMargin = 40;
-        params.bottomMargin = 40;
-        params.topMargin = 40;
-        linear.setLayoutParams(params);
 
         ScrollView scrollView = new ScrollView(this);
         scrollView.addView(linear);
 
-        TextView titleText = new TextView(this);
-        titleText.setText("Swipe to change language →");
-        titleText.setTextSize(TypedValue.COMPLEX_UNIT_DIP, 13);
-        titleText.setTextColor(0xFF777777);
+        // Top tip
+        if (texts.size()>1) {
+            LinearLayout.LayoutParams tipParams = new LinearLayout.LayoutParams(LinearLayout.LayoutParams.FILL_PARENT,
+                                                  LinearLayout.LayoutParams.WRAP_CONTENT);
+            tipParams.topMargin = 10;
+            tipParams.bottomMargin = 25;
+            tipParams.gravity = Gravity.CENTER_HORIZONTAL;
 
+            TextView tipText = new TextView(this);
+            tipText.setLayoutParams(tipParams);
+
+            tipText.setText(getTipText(index));
+
+            tipText.setTextSize(TypedValue.COMPLEX_UNIT_DIP, 11);
+            tipText.setTextColor(0xFF999999);
+            tipText.setGravity(Gravity.CENTER_HORIZONTAL);
+            linear.addView(tipText);
+        }
+
+        // Title
         LinearLayout.LayoutParams titleParams = new LinearLayout.LayoutParams(LinearLayout.LayoutParams.FILL_PARENT,
-                                              LinearLayout.LayoutParams.WRAP_CONTENT);
+                LinearLayout.LayoutParams.WRAP_CONTENT);
         titleParams.bottomMargin = 20;
-        titleParams.topMargin = 40;
         titleParams.gravity = Gravity.CENTER_HORIZONTAL;
 
-        titleText.setLayoutParams(titleParams);
+        TextView titleText = new TextView(this);
+        titleText.setText(title);
+        titleText.setTextSize(TypedValue.COMPLEX_UNIT_DIP, 16);
         titleText.setGravity(Gravity.CENTER_HORIZONTAL);
+        titleText.setLayoutParams(titleParams);
+        titleText.setTextColor(0xFF2F7EED);
         linear.addView(titleText);
 
+        // Content text
         LinearLayout.LayoutParams contentParams = new LinearLayout.LayoutParams(LinearLayout.LayoutParams.FILL_PARENT,
                 LinearLayout.LayoutParams.FILL_PARENT);
         contentParams.bottomMargin = 20;
@@ -127,68 +141,64 @@ public class DetailsViewActivity extends Activity {
         TextView contentText = new TextView(this);
         contentText.setGravity( Gravity.CENTER_HORIZONTAL );
         contentText.setLayoutParams(contentParams);
-        contentText.setText( texts.get(0), TextView.BufferType.SPANNABLE );
+        contentText.setText( text, TextView.BufferType.SPANNABLE );
+        contentText.setLineSpacing(0, 2);
         linear.addView(contentText);
 
         return scrollView;
     }
 
+    private CharSequence getTipText(int index) {
+        String text =  "Swipe to change language";
+        if (index > 0)
+            text = "← " + text;
+
+        if (index < texts.size() - 1)
+            text += "→";
+        return text;
+    }
+
     private SpannableString formatText(String text) {
 
-        int oldStartIndex = 0;
         int startIndex = 0;
-        
-        StringBuilder builder = new StringBuilder();
-        
-        ArrayList<Pair<Integer, Integer>> coroRegions = new ArrayList<Pair<Integer, Integer>>();
-        
-        int coroRegionStart = -1;
-        int coroRegionEnd = -1;
+        ArrayList<Pair> coroRegions = new ArrayList<Pair>();
 
         while(true) {
-            startIndex = text.indexOf("[coro]", oldStartIndex );
+            startIndex = text.indexOf("[coro]", startIndex+1 );
             if (startIndex >= 0) {
-                builder.append( text.substring(oldStartIndex, startIndex) );
-                startIndex += 6;
-
-                coroRegionStart = startIndex;
-                coroRegionEnd = text.indexOf("[/coro]", startIndex);
-
-                builder.append(text.substring(coroRegionStart+6, coroRegionEnd));
-                coroRegionEnd -= 6;
-                
-                coroRegions.add(new Pair<Integer, Integer>(coroRegionStart, coroRegionEnd));
-                oldStartIndex = startIndex;
+                int endIndex = text.indexOf("[/coro]", startIndex+1 );
+                coroRegions.add(new Pair(startIndex, endIndex));
             } else {
                 break;
             }
         }
-        builder.append(text.substring(coroRegionEnd+4));
 
-        SpannableString result;
-        
-        if (coroRegions.size() > 0) {
-            result = new SpannableString(builder.toString());
-            for(Pair<Integer, Integer> pair: coroRegions) {
-                int start = pair.first;
-                int end = pair.second;
-                if (start >= 0 && end >0) {
-                    result.setSpan(new StyleSpan(Typeface.BOLD), start, end, 0) ;
-                }
-            }
-        } else {
-            result = new SpannableString(text);
+        text = text.replace("[coro]","");
+        text = text.replace("[/coro]","");
+
+        SpannableString result = new SpannableString(text);
+
+        int correction = 0;
+        for(Pair pair: coroRegions) {
+            pair.first += correction;
+            correction -= 6;
+            pair.second += correction;
+            correction -= 7;
+
+            result.setSpan(new StyleSpan(Typeface.BOLD), pair.first, pair.second, 0);
         }
-        
-//        if (coroRegionEnd >= 0 && coroRegionEnd >= 0) {
-//            result = new SpannableString(builder.toString());
-//
-//            result.setSpan(new StyleSpan(Typeface.BOLD), coroRegionStart, coroRegionEnd, 0) ;
-//
-//        } else {
-//            result = new SpannableString(text);
-//        }
-
         return result;
+    }
+
+    static class Pair {
+        int first;
+        int second;
+        Pair(int a, int b) {
+            first = a;
+            second = b;
+        }
+        public String toString() {
+            return "<Pair f:" + first + " s: " + second;
+        }
     }
 }
