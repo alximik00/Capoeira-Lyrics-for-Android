@@ -13,8 +13,17 @@
             style="@style/ActionBar"
             />
 
-    <WebView
+    <uk.co.jasonfry.android.tools.ui.PageControl
+            android:id="@+id/page_control"
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:gravity="center_horizontal"
+            />
+    <uk.co.jasonfry.android.tools.ui.SwipeView
+            android:id="@+id/swipe_view"
             android:layout_width="fill_parent"
             android:layout_height="fill_parent"
+            android:layout_weight="2"
             />
 </LinearLayout>
