@@ -46,7 +46,8 @@ public class Song implements Parcelable, Serializable {
         this.text = text;
         this.engText = engText;
         this.rusText = rusText;
-        this.audioUrl = audioUrl;
+        //this.audioUrl = audioUrl;
+        this.audioUrl = null;
         this.videoUrl = videoUrl;
     }
 

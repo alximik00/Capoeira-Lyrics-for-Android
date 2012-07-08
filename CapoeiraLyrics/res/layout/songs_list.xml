@@ -12,8 +12,10 @@
             style="@style/ActionBar"
             />
     <FrameLayout
-            android:layout_width="match_parent"
-            android:layout_height="match_parent">
+            android:layout_width="fill_parent"
+            android:layout_height="fill_parent"
+            android:layout_weight="1"
+            >
 
         <LinearLayout
                 android:layout_width="fill_parent"
@@ -102,4 +104,10 @@
             </LinearLayout>
         </LinearLayout>
     </FrameLayout>
+    <!--<com.smaato.soma.BannerView-->
+            <!--android:id="@+id/banner_view"-->
+            <!--android:layout_width="fill_parent"-->
+            <!--android:layout_height="50dip"-->
+            <!--android:scaleType="centerInside"-->
+            <!--/>-->
 </LinearLayout>

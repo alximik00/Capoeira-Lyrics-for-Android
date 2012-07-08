@@ -3,10 +3,12 @@ package com.alximik.capoeiralyrics.activities;
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.DialogInterface;
+import android.content.Intent;
 import android.graphics.Typeface;
 import android.os.Bundle;
 import android.text.SpannableString;
 import android.text.style.StyleSpan;
+import android.util.Log;
 import android.util.TypedValue;
 import android.view.Gravity;
 import android.view.View;
@@ -17,8 +19,12 @@ import com.alximik.capoeiralyrics.Constants;
 import com.alximik.capoeiralyrics.R;
 import com.alximik.capoeiralyrics.db.SongsStorage;
 import com.alximik.capoeiralyrics.entities.Song;
+import com.alximik.capoeiralyrics.network.ApiConstants;
+import com.alximik.capoeiralyrics.network.NetworkConstants;
 import com.alximik.capoeiralyrics.utils.SU;
 import com.markupartist.android.widget.ActionBar;
+import com.smaato.soma.AdType;
+import com.smaato.soma.BannerView;
 import uk.co.jasonfry.android.tools.ui.PageControl;
 import uk.co.jasonfry.android.tools.ui.SwipeView;
 
@@ -32,6 +38,8 @@ import java.util.ArrayList;
  */
 public class DetailsViewActivity extends Activity {
     private ArrayList<SpannableString> texts;
+    private BannerView banner;
+    private Song song;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -39,19 +47,11 @@ public class DetailsViewActivity extends Activity {
         setContentView(R.layout.song_details);
 
         ActionBar actionBar = (ActionBar) findViewById(R.id.actionbar);
-        actionBar.addAction(new ActionBar.Action() {
-            @Override
-            public int getDrawable() {
-                return R.drawable.arrow_left;
-            }
+        setupActionBar(actionBar);
 
-            @Override
-            public void performAction(View view) {
-                finish();
-            }
-        });
+
         long songId = getIntent().getExtras().getLong(Constants.SONG_ID);
-        Song song = SongsStorage.findById(this, songId);
+        song = SongsStorage.findById(this, songId);
         if (song == null) {
             new AlertDialog.Builder(this)
                     .setTitle("Song not found")
@@ -75,7 +75,72 @@ public class DetailsViewActivity extends Activity {
             SpannableString text =  texts.get(i);
             swipeView.addView(constructView(text, song.getTitle(), i));
         }
+
+        banner = (BannerView) findViewById(R.id.banner_view);
+        if (banner != null) {
+            Log.d(Constants.TAG, "Initializing smaato banner");
+            ApiConstants constants = new NetworkConstants();
+            banner.getUserSettings().setKeywordList("Android,Sports,Capoeira");
+            banner.getAdSettings().setPublisherId(constants.getSmaatoPublisherId());
+            banner.getAdSettings().setAdspaceId(constants.getSmaatoAdSpace());
+            banner.getAdSettings().setAdType(AdType.ALL);
+        }
     }
+
+    private void setupActionBar(ActionBar actionBar) {
+
+        actionBar.addAction(new ActionBar.Action() {
+            @Override
+            public int getDrawable() {
+                return R.drawable.ic_menu_share_holo_dark;
+            }
+
+            @Override
+            public void performAction(View view) {
+                Intent intent=new Intent(android.content.Intent.ACTION_SEND);
+                intent.setType("text/plain");
+                intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_WHEN_TASK_RESET);
+
+
+                String subject = String.format("Just learn '%s' by '%s' ", song.getTitle(), song.getAuthor() );
+                String url = "http://capoeiralyrics.info/Songs/Details/" + song.getId();
+
+                intent.putExtra(Intent.EXTRA_SUBJECT, subject);
+                intent.putExtra(Intent.EXTRA_TEXT, url);
+
+                startActivity(Intent.createChooser(intent, "How do you want to share?"));
+            }
+        });
+
+        actionBar.addAction(new ActionBar.Action() {
+            @Override
+            public int getDrawable() {
+                return R.drawable.arrow_left;
+            }
+
+            @Override
+            public void performAction(View view) {
+                finish();
+            }
+        });
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        if (banner != null) {
+            banner.setAutoReloadEnabled(true);
+        }
+    }
+
+    @Override
+    protected void onPause() {
+        super.onPause();
+        if (banner != null) {
+            banner.setAutoReloadEnabled(false);
+        }
+    }
+
 
     private void createTexts(Song song) {
         texts = new ArrayList<SpannableString>();

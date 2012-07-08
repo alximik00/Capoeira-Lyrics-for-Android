@@ -4,6 +4,7 @@ import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.net.ConnectivityManager;
+import android.net.Uri;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.KeyEvent;
@@ -16,10 +17,14 @@ import com.alximik.capoeiralyrics.R;
 import com.alximik.capoeiralyrics.db.FavouritesStorage;
 import com.alximik.capoeiralyrics.entities.SearchType;
 import com.alximik.capoeiralyrics.entities.Song;
+import com.alximik.capoeiralyrics.network.ApiConstants;
+import com.alximik.capoeiralyrics.network.NetworkConstants;
 import com.alximik.capoeiralyrics.utils.SU;
 import com.alximik.capoeiralyrics.views.SongsAdapter;
 import com.makeramen.segmented.SegmentedRadioGroup;
 import com.markupartist.android.widget.ActionBar;
+import com.smaato.soma.AdType;
+import com.smaato.soma.BannerView;
 import net.londatiga.android.ActionItem;
 import net.londatiga.android.QuickAction;
 
@@ -51,6 +56,7 @@ public abstract class BaseListActivity extends Activity {
     private LinearLayout searchPanel;
     private SegmentedRadioGroup searchTypeRagiogroup;
     private EditText searchTextField;
+    private BannerView banner;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -101,6 +107,33 @@ public abstract class BaseListActivity extends Activity {
                 onSongClicked(view, song);
             }
         });
+
+
+        banner = (BannerView) findViewById(R.id.banner_view);
+        if (banner != null) {
+            ApiConstants constants = new NetworkConstants();
+            banner.getAdSettings().setPublisherId(constants.getSmaatoPublisherId());
+            banner.getAdSettings().setAdspaceId(constants.getSmaatoAdSpace());
+            banner.setLocationUpdateEnabled(false);
+            banner.getAdSettings().setAdType(AdType.ALL);
+            banner.getUserSettings().setKeywordList("Android,Sports,Capoeira");
+        }
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        if (banner != null) {
+            banner.setAutoReloadEnabled(true);
+        }
+    }
+
+    @Override
+    protected void onPause() {
+        super.onPause();
+        if (banner != null) {
+            banner.setAutoReloadEnabled(false);
+        }
     }
 
     protected void onSongLongClick(final View view, final Song song) {
@@ -207,8 +240,15 @@ public abstract class BaseListActivity extends Activity {
     }
 
     protected void startUrl(Context context, String url) {
-        if (SU.isEmpty(url)) {
-            return;
+        if (!SU.isEmpty(url)) {
+            try {
+                if (url.contains("youtube")) {
+                    url = url.replace("/www.", "/"); // urls with www in youtube couldn't be opened
+                }
+                startActivity(new Intent(Intent.ACTION_VIEW, Uri.parse(url) ));
+            } catch (Exception e) {
+                Toast.makeText( BaseListActivity.this, "Sorry, can't open the link :(", 3);
+            }
         }
     }
 

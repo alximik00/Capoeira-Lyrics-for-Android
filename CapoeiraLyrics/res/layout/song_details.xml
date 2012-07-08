@@ -26,4 +26,11 @@
             android:layout_height="fill_parent"
             android:layout_weight="2"
             />
+
+    <com.smaato.soma.BannerView
+            android:id="@+id/banner_view"
+            android:layout_width="fill_parent"
+            android:layout_height="50dip"
+            android:scaleType="centerInside"
+            />
 </LinearLayout>

@@ -23,7 +23,7 @@ public class Api {
     static ApiConstants constants;
     static {
         if (constants == null) {
-            constants  = new Constants();
+            constants  = new NetworkConstants();
         }
     }
 

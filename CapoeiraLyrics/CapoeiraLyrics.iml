@@ -41,6 +41,7 @@
     <orderEntry type="module" module-name="SegmentedRadioButton" />
     <orderEntry type="module" module-name="Lorensiuswlt-NewQuickAction" />
     <orderEntry type="library" name="uk.co.jasonfry.android.tools" level="project" />
+    <orderEntry type="library" name="SOMAAndroidSDK3.1.1" level="project" />
   </component>
 </module>
 

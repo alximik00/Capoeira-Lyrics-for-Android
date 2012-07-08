@@ -20,4 +20,8 @@ public interface ApiConstants {
     String getTwitterConsumerKey();
 
     String getTwitterSecret();
+
+    int getSmaatoPublisherId();
+
+    int getSmaatoAdSpace();
 }
