@@ -28,6 +28,18 @@ fieldName=rusText
 # --field-end--
 
 # --field-start--
+fieldName=textNorm
+# --field-end--
+
+# --field-start--
+fieldName=titleNorm
+# --field-end--
+
+# --field-start--
+fieldName=authorNorm
+# --field-end--
+
+# --field-start--
 fieldName=audioUrl
 # --field-end--
 

@@ -50,13 +50,18 @@ public class SongsAdapter extends ArrayAdapter<Song> {
         TextView txtTitle = (TextView) convertView.findViewById(R.id.txt_title);
         ImageView imgEn = (ImageView) convertView.findViewById(R.id.img_english);
         ImageView imgRu = (ImageView) convertView.findViewById(R.id.img_russian);
-        ImageView imgAudio = (ImageView) convertView.findViewById(R.id.img_audio);
+        //ImageView imgAudio = (ImageView) convertView.findViewById(R.id.img_audio);
         ImageView imgVideo = (ImageView) convertView.findViewById(R.id.img_video);
 
         ImageView imgLogo = (ImageView) convertView.findViewById(R.id.img_logo);
+
+
+
         ImageView imgFav = (ImageView) convertView.findViewById(R.id.img_favorite2);
 
         Song song = songs.get(position);
+
+
 
         txtArtist.setText( SU.emptify(song.getAuthor()) ) ;
         txtTitle.setText(song.getTitle());
@@ -64,10 +69,19 @@ public class SongsAdapter extends ArrayAdapter<Song> {
         setVisibilityOnString(imgEn, song.getEngText());
         setVisibilityOnString(imgRu, song.getRusText());
 
-        setVisibilityOnString(imgAudio, song.getAudioUrl());
+
         setVisibilityOnString(imgVideo, song.getVideoUrl());
 
-        imgLogo.setImageDrawable(context.getResources().getDrawable( chooseLogo(song.getAuthor())  ));
+
+        int drawableLogo = chooseLogo(song.getAuthor());
+        if(drawableLogo == R.drawable.logo_default){
+            imgLogo.setScaleType(ImageView.ScaleType.FIT_START);
+        }else{
+            imgLogo.setScaleType(ImageView.ScaleType.FIT_CENTER);
+        }
+
+
+        imgLogo.setImageDrawable(context.getResources().getDrawable(drawableLogo));
         imgFav.setVisibility( song.isFavourite() ? View.VISIBLE : View.GONE );
 
         return convertView;
@@ -81,6 +95,8 @@ public class SongsAdapter extends ArrayAdapter<Song> {
     }
 
     private int chooseLogo(String artist) {
+        if(null == artist) return R.drawable.logo_default;
+
         artist = artist.toLowerCase();
 
         if (artist.contains("mestre suassuna") || artist.contains("cordao de ouro") )

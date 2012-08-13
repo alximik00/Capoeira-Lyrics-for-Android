@@ -11,12 +11,12 @@ import android.widget.*;
 import com.alximik.capoeiralyrics.Constants;
 import com.alximik.capoeiralyrics.MainApplication;
 import com.alximik.capoeiralyrics.R;
-import com.alximik.capoeiralyrics.db.FavouritesStorage;
 import com.alximik.capoeiralyrics.entities.SearchType;
 import com.alximik.capoeiralyrics.entities.Song;
 import com.alximik.capoeiralyrics.db.SongsStorage;
 import com.alximik.capoeiralyrics.network.Api;
 import com.alximik.capoeiralyrics.network.SongsCallback;
+import com.alximik.capoeiralyrics.network.SongsCountCallback;
 import com.markupartist.android.widget.ActionBar;
 
 import java.sql.SQLException;
@@ -26,6 +26,7 @@ import java.util.*;
 public class SongsListActivity extends BaseListActivity {
     Handler handler = new Handler();
 
+    int mServerSongsCount = 0;
     private ProgressDialog progressDialog;
 
     @Override
@@ -33,6 +34,7 @@ public class SongsListActivity extends BaseListActivity {
         super.onCreate(savedInstanceState);
 
         setupActionbar();
+
         setupSongs();
     }
 
@@ -42,23 +44,51 @@ public class SongsListActivity extends BaseListActivity {
     }
 
     private void setupActionbar() {
+
+        actionBar.setTitle(R.string.app_name);
         actionBar.addAction(new ActionBar.Action() {
             @Override
             public int getDrawable() {
-                return  R.drawable.refresh;
+                return  R.drawable.reload_icon;
             }
 
             @Override
             public void performAction(View view) {
-                showProgress();
-                startLoad();
+
+                DialogInterface.OnClickListener onOk = new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialogInterface, int which) {
+                        showProgress();
+                        startLoad();
+                    }
+                };
+
+                DialogInterface.OnClickListener onCancel = new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialogInterface, int which) {
+                        dialogInterface.dismiss();
+                    }
+                };
+
+                String format = getResources().getString(R.string.msg_pattern_are_you_sure_to_download);
+                String value = String.format(format, mServerSongsCount/1000.0);
+                new AlertDialog.Builder(SongsListActivity.this)
+                        .setTitle(R.string.msg_title_update_available)
+                        .setMessage(value)
+                        .setPositiveButton(R.string.btn_title_download, onOk)
+                        .setNegativeButton(R.string.btn_title_cancel, onCancel)
+                        .show();
+
+
+
+
             }
         });
 
         actionBar.addAction(new ActionBar.Action() {
             @Override
             public int getDrawable() {
-                return R.drawable.search;
+                return R.drawable.zoom_icon;
             }
 
             @Override
@@ -70,69 +100,112 @@ public class SongsListActivity extends BaseListActivity {
         actionBar.addAction(new ActionBar.Action() {
             @Override
             public int getDrawable() {
-                return R.drawable.gray_heart;
+                return R.drawable.heart_icon;
             }
 
             @Override
             public void performAction(View view) {
-                Intent intent = new Intent(SongsListActivity.this, FavouritesActivity.class);
-                startActivityForResult(intent, Constants.FAVOURITES_INTENT);
+                if(favourites.isEmpty()){
+                    Toast.makeText(SongsListActivity.this, R.string.msg_no_favorites, 4).show();
+                }else{
+                    Intent intent = new Intent(SongsListActivity.this, FavouritesActivity.class);
+                    startActivityForResult(intent, Constants.FAVOURITES_INTENT);
+                }
             }
         });
     }
 
     private void setupSongs() {
+
         try {
-            Set<Long> favs = FavouritesStorage.loadFavourites(this);
+
+            //Set<Long> favs = FavouritesStorage.loadFavourites(this);
             favourites.clear();
-            favourites.addAll(favs);
-        } catch (Exception e) {}
+            //favourites.addAll(favs);
 
+            List<Song> newSongs = SongsStorage.sharedInstance(this).load(this);
 
-        try {
-            List<Song> newSongs = SongsStorage.load(this);
             setNewSongs( newSongs, favourites );
-        } catch (Exception e) { }
+
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
 
         if (MainApplication.isUpdateAsked())
             return;
 
-        if (songs.size() == 0) {
-            showProgress();
-            startLoad();
-        } else {
-            if (!isOnline())
-                return;
+        if (!isOnline())
+            return;
 
-            DialogInterface.OnClickListener onOk = new DialogInterface.OnClickListener() {
-                @Override
-                public void onClick(DialogInterface dialogInterface, int which) {
-                    dialogInterface.dismiss();
-                    showProgress();
-                    startLoad();
-                }
-            };
 
-            DialogInterface.OnClickListener onCancel = new DialogInterface.OnClickListener() {
-                @Override
-                public void onClick(DialogInterface dialogInterface, int which) {
-                    dialogInterface.dismiss();
-                }
-            };
 
-            new AlertDialog.Builder(this)
-                    .setTitle("Updates")
-                    .setMessage("New songs updates available! Do you want to load them?")
-                    .setPositiveButton("Download", onOk)
-                    .setNegativeButton("Cancel", onCancel)
-                    .show();
-            MainApplication.setUpdateAsked(true);
-        }
+        // background check for server songs count
+        Api.getSongsCount(new SongsCountCallback() {
+            @Override
+            public void onSuccess(final int count) {
+                handler.post(new Runnable() {
+                    @Override
+                    public void run() {
+
+                        mServerSongsCount = count;
+                        if(songs.size() < count){
+
+                            SongsListActivity.this.runOnUiThread(new Runnable() {
+                                @Override
+                                public void run() {
+                                    DialogInterface.OnClickListener onOk = new DialogInterface.OnClickListener() {
+                                        @Override
+                                        public void onClick(DialogInterface dialogInterface, int which) {
+                                            dialogInterface.dismiss();
+                                            showProgress();
+                                            startLoad();
+                                        }
+                                    };
+
+                                    DialogInterface.OnClickListener onCancel = new DialogInterface.OnClickListener() {
+                                        @Override
+                                        public void onClick(DialogInterface dialogInterface, int which) {
+                                            dialogInterface.dismiss();
+                                        }
+                                    };
+
+                                    String format = getResources().getString(R.string.msg_pattern_update_available);
+                                    String value = String.format(format, mServerSongsCount/1000.0);
+
+                                    new AlertDialog.Builder(SongsListActivity.this)
+                                            .setTitle(R.string.msg_title_update_available)
+                                            .setMessage(value)
+                                            .setPositiveButton(R.string.btn_title_download, onOk)
+                                            .setNegativeButton(R.string.btn_title_cancel, onCancel)
+                                            .show();
+                                }
+                            });
+
+                        }
+
+
+
+                    }
+                });
+            }
+
+            @Override
+            public void onError(String error) {}
+        });
+
+
+
+
+
+
+        //MainApplication.setUpdateAsked(true);
     }
 
     private void showProgress() {
         progressDialog = new ProgressDialog(this);
-        progressDialog.setMessage("Loading songs");
+        progressDialog.setMessage(getString(R.string.msg_update_progress));
         progressDialog.show();
     }
 
@@ -150,11 +223,22 @@ public class SongsListActivity extends BaseListActivity {
 
             @Override
             public void onError(String error) {
-                Toast.makeText(SongsListActivity.this, "Sorry, couldn't load songs :(", 4);
+            SongsListActivity.this.runOnUiThread(new Runnable() {
+                public void run() {
+                    if (progressDialog != null) {
+                        progressDialog.dismiss();
+                    }
+                    Toast.makeText(SongsListActivity.this, R.string.msg_update_failed, 4).show();
+                }
+            });
+
+
                 Log.wtf(Constants.TAG, "Songs loading:" + error);
             }
         });
     }
+
+
 
     private void onSongsDownloaded(final List<Song> newSongs) {
         setNewSongs(newSongs, favourites);
@@ -163,15 +247,19 @@ public class SongsListActivity extends BaseListActivity {
         Thread saveThread = new Thread() {
             public void run() {
                 try {
-                    SongsStorage.save(SongsListActivity.this,  newSongs);
+                    SongsStorage.sharedInstance(SongsListActivity.this).save(SongsListActivity.this,  newSongs);
                 } catch (Exception e) {
-                    Log.e(Constants.TAG, "Failed to save songs", e);
+                    Log.e(Constants.TAG, getString(R.string.msg_update_failed), e);
                 }
             }
         };
         saveThread.start();
         if (progressDialog != null)
             progressDialog.dismiss();
+
+        String msg = newSongs.size() + " " +getResources().getString(R.string.msg_update_complete);
+
+        Toast.makeText(SongsListActivity.this, msg, 4).show();
     }
 
 
@@ -180,23 +268,22 @@ public class SongsListActivity extends BaseListActivity {
             List<Song> newContent = SongsStorage.load(this, text, searchType);
             setNewSongs(newContent, favourites);
         } catch (Exception ex) {
-            Toast.makeText(this, "Can't load songs, sorry", 3);
+            Toast.makeText(this, R.string.msg_update_failed, 4).show();
         }
     }
 
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         if (requestCode == Constants.FAVOURITES_INTENT) {
 
-            try {
-                Set<Long> newFavs = FavouritesStorage.loadFavourites(this);
+            {
+                //Set<Long> newFavs = FavouritesStorage.loadFavourites(this);
                 favourites.clear();
-                favourites.addAll(newFavs);
+                //favourites.addAll(newFavs);
 
                 for(Song song: songs) {
                     song.setFavourite( favourites.contains(song.getId()) );
                 }
                 songsAdapter.notifyDataSetChanged();
-            } catch (SQLException e) {
             }
         }
     }

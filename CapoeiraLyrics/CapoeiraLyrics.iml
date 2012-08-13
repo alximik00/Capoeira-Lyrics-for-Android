@@ -25,6 +25,7 @@
         <option name="PROGUARD_CFG_PATH" value="/proguard-project.txt" />
         <resOverlayFolders />
         <includeSystemProguardFile>false</includeSystemProguardFile>
+        <additionalNativeLibs />
       </configuration>
     </facet>
   </component>
@@ -36,12 +37,56 @@
     </content>
     <orderEntry type="jdk" jdkName="Android 2.3.3 Platform" jdkType="Android SDK" />
     <orderEntry type="sourceFolder" forTests="false" />
-    <orderEntry type="library" name="ormlite-android-4.41" level="project" />
-    <orderEntry type="module" module-name="Actionbar" />
-    <orderEntry type="module" module-name="SegmentedRadioButton" />
-    <orderEntry type="module" module-name="Lorensiuswlt-NewQuickAction" />
-    <orderEntry type="library" name="uk.co.jasonfry.android.tools" level="project" />
-    <orderEntry type="library" name="SOMAAndroidSDK3.1.1" level="project" />
+    <orderEntry type="module" module-name="Actionbar" exported="" />
+    <orderEntry type="module" module-name="Android-segmentedradiobutton" exported="" />
+    <orderEntry type="module" module-name="Lorensiuswlt-NewQuickAction" exported="" />
+    <orderEntry type="module-library" exported="">
+      <library>
+        <CLASSES>
+          <root url="jar://$MODULE_DIR$/libs/SOMAAndroidSDK3.1.1.jar!/" />
+        </CLASSES>
+        <JAVADOC />
+        <SOURCES />
+      </library>
+    </orderEntry>
+    <orderEntry type="module-library" exported="">
+      <library>
+        <CLASSES>
+          <root url="jar://$MODULE_DIR$/libs/uk.co.jasonfry.android.tools.jar!/" />
+        </CLASSES>
+        <JAVADOC>
+          <root url="jar://$MODULE_DIR$/libs/uk.co.jasonfry.android.tools.jar!/doc" />
+        </JAVADOC>
+        <SOURCES />
+      </library>
+    </orderEntry>
+    <orderEntry type="module-library">
+      <library>
+        <CLASSES>
+          <root url="jar://$MODULE_DIR$/libs/ormlite-android-4.9.jar!/" />
+        </CLASSES>
+        <JAVADOC />
+        <SOURCES />
+      </library>
+    </orderEntry>
+    <orderEntry type="module-library">
+      <library>
+        <CLASSES>
+          <root url="jar://$MODULE_DIR$/libs/ormlite-core-4.9.jar!/" />
+        </CLASSES>
+        <JAVADOC />
+        <SOURCES />
+      </library>
+    </orderEntry>
+    <orderEntry type="module-library" exported="">
+      <library>
+        <CLASSES>
+          <root url="jar://$MODULE_DIR$/libs/greenDAO.jar!/" />
+        </CLASSES>
+        <JAVADOC />
+        <SOURCES />
+      </library>
+    </orderEntry>
   </component>
 </module>
 

@@ -4,7 +4,7 @@ import android.os.Bundle;
 import android.view.View;
 import android.widget.Toast;
 import com.alximik.capoeiralyrics.R;
-import com.alximik.capoeiralyrics.db.FavouritesStorage;
+
 import com.alximik.capoeiralyrics.entities.SearchType;
 import com.alximik.capoeiralyrics.entities.Song;
 import com.alximik.capoeiralyrics.db.SongsStorage;
@@ -29,9 +29,9 @@ public class FavouritesActivity extends BaseListActivity {
 
     private void setupSongs() {
         try {
-            Set<Long> favs = FavouritesStorage.loadFavourites(this);
+            //Set<Long> favs = FavouritesStorage.loadFavourites(this);
             favourites.clear();
-            favourites.addAll(favs);
+           // favourites.addAll(favs);
         } catch (Exception e) {}
 
 
@@ -42,10 +42,10 @@ public class FavouritesActivity extends BaseListActivity {
     }
 
     private void setupActionbar() {
-        actionBar.addAction(new ActionBar.Action() {
+        actionBar.setHomeAction(new ActionBar.Action() {
             @Override
             public int getDrawable() {
-                return R.drawable.arrow_left;
+                return R.drawable.toolbar_home_default;
             }
 
             @Override
@@ -54,10 +54,12 @@ public class FavouritesActivity extends BaseListActivity {
             }
         });
 
+        actionBar.setTitle(R.string.app_name);
+
         actionBar.addAction(new ActionBar.Action() {
             @Override
             public int getDrawable() {
-                return R.drawable.search;
+                return R.drawable.zoom_icon;
             }
 
             @Override
@@ -72,7 +74,7 @@ public class FavouritesActivity extends BaseListActivity {
             List<Song> newContent = SongsStorage.load(this, text, searchType, favourites);
             setNewSongs(newContent, favourites);
         } catch (Exception ex) {
-            Toast.makeText(this, "Can't load songs, sorry", 3);
+            Toast.makeText(this, "Can't load songs, sorry", 4).show();
         }
     }
 
@@ -83,6 +85,11 @@ public class FavouritesActivity extends BaseListActivity {
         if (actionId == IdQuickActionUnfav ) {
             songs.remove( song );
             songsAdapter.notifyDataSetChanged();
+
+            if(songs.isEmpty()){
+                finish();
+                Toast.makeText(this, "No favorite songs", 4).show();
+            }
         }
     }
 }

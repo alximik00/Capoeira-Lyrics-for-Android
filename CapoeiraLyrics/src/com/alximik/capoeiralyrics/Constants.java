@@ -10,5 +10,6 @@ public class Constants {
     public static final String TAG = "alximik.capoeira";
 
     public static final int FAVOURITES_INTENT = 0x11110001;
+    public static final int SONGSS_INTENT = 0x11110002;
     public static final String SONG_ID = "SONG_ID";
 }

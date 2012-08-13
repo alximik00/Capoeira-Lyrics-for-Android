@@ -13,8 +13,7 @@
             android:layout_gravity="right"
             android:layout_height="fill_parent"
             android:layout_width="120dip"
-            android:layout_margin="2dip"
-
+            android:layout_margin="0dip"
             android:src="@drawable/logo_axe"
             android:layout_weight="1"/>
 
@@ -65,12 +64,7 @@
                     android:src="@drawable/heart"
                     android:layout_marginRight="8dip"/>
 
-            <ImageView
-                    android:id="@+id/img_audio"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:src="@drawable/music_beam"
-                    android:layout_marginRight="8dip"/>
+
 
             <ImageView
                     android:id="@+id/img_video"
