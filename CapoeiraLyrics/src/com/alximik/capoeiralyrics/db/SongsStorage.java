@@ -54,10 +54,7 @@ public class SongsStorage {
         this.context = context;
     }
 
-    public List<Song> load(Context context) throws Exception {
-
-
-
+    public List<Song> load() throws Exception {
 
         String textColumn = SongDao.Properties.Title.columnName;
         String orderBy = textColumn + " COLLATE LOCALIZED ASC";
@@ -74,45 +71,38 @@ public class SongsStorage {
         return mArrayList;
     }
     
-    public  static List<Song> load(Context context, String what, SearchType searchType) throws SQLException {
-        return load(context, what, searchType, null);
-    }
+
     
-    public static List<Song> load(Context context, String what, SearchType searchType, Set<Long> favourites) throws SQLException {
-//        Dao<Song, Long> dao = DatabaseHelper.sharedInstance(context).getSongsDao();
-//
-//        QueryBuilder<Song,Long> builder = dao.queryBuilder();
-//        Where<Song, Long> where = builder.orderBy("title", true).where();
-//        //"title", "author", "engText", "rusText"
-//        what = "%"+what+"%";
-//
-//        if (searchType == SearchType.ARTIST) {
-//            where = where.like("authorNorm", what);
-//        } else if (searchType == SearchType.NAME) {
-//            where = where.like("titleNorm", what);
-//        } else if (searchType == SearchType.TEXT) {
-//            where = where.like("engText", what).or().like("rusText", what).or().like("textNorm", what);
-//        } else if (searchType == SearchType.ALL) {
-//            where = where.like("engText", what)
-//                    .or().like("rusText", what)
-//                    .or().like("textNorm", what)
-//                    .or().like("authorNorm", what)
-//                    .or().like("titleNorm", what);
-//        }
-//        List<Song> res = dao.query(where.prepare());
-//        if (favourites != null) {
-//            List<Song> filtered = new ArrayList<Song>();
-//            for(Song song: res) {
-//                if (favourites.contains( song.getId() ) ) {
-//                    filtered.add( song );
-//                }
-//            }
-//            res = filtered;
-//        }
-//
-//
-//        return res;
-        return null;
+    public List<Song> search(String what, SearchType searchType, boolean searchThruFavs) throws SQLException {
+
+        String textColumn = SongDao.Properties.Title.columnName;
+        String orderBy = textColumn + " COLLATE LOCALIZED ASC";
+        String where = (searchThruFavs)?"(isFavourite = 1)":"(1=1)";
+        what = "'%"+what+"%'";
+
+        if (searchType == SearchType.ARTIST) {
+            where += " AND (authorNorm like " + what + ")";
+        } else if (searchType == SearchType.NAME) {
+            where += " AND (titleNorm like " + what+ ")";
+        } else if (searchType == SearchType.TEXT) {
+            where += " AND (engText like " + what+ " OR rusText like " + what+ " OR textNorm like "+ what+")";
+        } else if (searchType == SearchType.ALL) {
+            where += " AND (engText like " + what+ " OR rusText like " + what+ " OR textNorm like "+ what+ " OR authorNorm like " + what+ " OR titleNorm like " + what+")";
+        }
+
+
+        cursor = db.query(songDao.getTablename(), songDao.getAllColumns(), where, null, null, null, orderBy);
+
+        ArrayList<Song> mArrayList = new ArrayList<Song>();
+        for(cursor.moveToFirst(); !cursor.isAfterLast(); cursor.moveToNext()) {
+            // The Cursor is now set to the right position
+            mArrayList.add(songDao.readEntity(cursor, 0));
+        }
+
+        cursor.close();
+
+        return mArrayList;
+
     }
 
     public void save(Context context, List<Song> songs) throws Exception {
@@ -124,33 +114,32 @@ public class SongsStorage {
         }
     }
 
-    public static List<Song> loadFavourites(Context context, Set<Long> favourites) throws SQLException {
-//        Dao<Song, Long> dao = DatabaseHelper.sharedInstance(context).getSongsDao();
-//        List<Song> songs = new ArrayList<Song>(favourites.size());
-//        for(long id: favourites) {
-//            songs.add(dao.queryForId(id));
-//        }
-//        Collections.sort(songs, new Comparator<Song>() {
-//            @Override
-//            public int compare(Song song, Song song1) {
-//                int res =   SU.emptify( song.getTitle() ).compareTo(song1.getTitle());
-//                if (res != 0)
-//                    return res;
-//
-//                return SU.emptify( song.getAuthor() ).compareTo(song1.getAuthor());
-//            }
-//        });
-//        return  songs;
-        return null;
+    public void update(Song song) throws Exception {
+        this.songDao.update(song);
     }
 
-    public static Song findById(Context context, long id) {
-//        try {
-//            Dao<Song, Long> dao = DatabaseHelper.sharedInstance(context).getSongsDao();
-//            return dao.queryForId(id);
-//        } catch (SQLException e) {
-//            return null;
-//        }
-        return null;
+    public List<Song> loadFavourites() throws SQLException {
+        String textColumn = SongDao.Properties.Title.columnName;
+        String orderBy = textColumn + " COLLATE LOCALIZED ASC";
+        cursor = db.query(songDao.getTablename(), songDao.getAllColumns(), "isFavourite == 1", null, null, null, orderBy);
+
+        ArrayList<Song> mArrayList = new ArrayList<Song>();
+        for(cursor.moveToFirst(); !cursor.isAfterLast(); cursor.moveToNext()) {
+            // The Cursor is now set to the right position
+            mArrayList.add(songDao.readEntity(cursor, 0));
+        }
+
+        cursor.close();
+
+        return mArrayList;
+    }
+
+    public Song findById(long id) {
+        cursor = db.query(songDao.getTablename(), songDao.getAllColumns(), String.format("_id == %d", id), null, null, null, null);
+
+        cursor.moveToFirst();
+        Song song = songDao.readEntity(cursor, 0);
+
+        return song;
     }
 }

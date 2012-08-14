@@ -105,11 +105,15 @@ public class SongsListActivity extends BaseListActivity {
 
             @Override
             public void performAction(View view) {
-                if(favourites.isEmpty()){
-                    Toast.makeText(SongsListActivity.this, R.string.msg_no_favorites, 4).show();
-                }else{
-                    Intent intent = new Intent(SongsListActivity.this, FavouritesActivity.class);
-                    startActivityForResult(intent, Constants.FAVOURITES_INTENT);
+                try {
+                    if(SongsStorage.sharedInstance(SongsListActivity.this).loadFavourites().isEmpty()){
+                        Toast.makeText(SongsListActivity.this, R.string.msg_no_favorites, 4).show();
+                    }else{
+                        Intent intent = new Intent(SongsListActivity.this, FavouritesActivity.class);
+                        startActivityForResult(intent, Constants.FAVOURITES_INTENT);
+                    }
+                } catch (SQLException e) {
+                    e.printStackTrace();  //To change body of catch statement use File | Settings | File Templates.
                 }
             }
         });
@@ -120,12 +124,12 @@ public class SongsListActivity extends BaseListActivity {
         try {
 
             //Set<Long> favs = FavouritesStorage.loadFavourites(this);
-            favourites.clear();
+            //favourites.clear();
             //favourites.addAll(favs);
 
-            List<Song> newSongs = SongsStorage.sharedInstance(this).load(this);
+            List<Song> newSongs = SongsStorage.sharedInstance(this).load();
 
-            setNewSongs( newSongs, favourites );
+            setNewSongs( newSongs );
 
 
         } catch (Exception e) {
@@ -241,7 +245,7 @@ public class SongsListActivity extends BaseListActivity {
 
 
     private void onSongsDownloaded(final List<Song> newSongs) {
-        setNewSongs(newSongs, favourites);
+        setNewSongs(newSongs);
 
         // Write songs to storage in background
         Thread saveThread = new Thread() {
@@ -265,8 +269,8 @@ public class SongsListActivity extends BaseListActivity {
 
     protected void doSearch(String text, SearchType searchType) {
         try {
-            List<Song> newContent = SongsStorage.load(this, text, searchType);
-            setNewSongs(newContent, favourites);
+            List<Song> newContent = SongsStorage.sharedInstance(this).search(text, searchType, false);
+            setNewSongs(newContent);
         } catch (Exception ex) {
             Toast.makeText(this, R.string.msg_update_failed, 4).show();
         }
@@ -276,14 +280,32 @@ public class SongsListActivity extends BaseListActivity {
         if (requestCode == Constants.FAVOURITES_INTENT) {
 
             {
-                //Set<Long> newFavs = FavouritesStorage.loadFavourites(this);
-                favourites.clear();
-                //favourites.addAll(newFavs);
+                try {
 
-                for(Song song: songs) {
-                    song.setFavourite( favourites.contains(song.getId()) );
+                    List<Song> favs =  SongsStorage.sharedInstance(this).loadFavourites();
+                    for(Song song : songs){
+
+                        boolean oldFavStatus = song.isFavourite();
+                        boolean  newFavStatus = favs.contains(song);
+
+                        if(oldFavStatus != newFavStatus){
+                            song.setFavourite(newFavStatus);
+                            SongsStorage.sharedInstance(this).update(song);
+                        }
+
+
+
+
+                    }
+
+
+
+                    songsAdapter.notifyDataSetChanged();
+                } catch (Exception e) {
+                    e.printStackTrace();  //To change body of catch statement use File | Settings | File Templates.
                 }
-                songsAdapter.notifyDataSetChanged();
+
+
             }
         }
     }

@@ -43,7 +43,7 @@ public class SplashScreenActivity extends Activity {
         // load items for first database start
         List<Song> newSongs = null;
         try {
-            newSongs = SongsStorage.sharedInstance(this).load(this);
+            newSongs = SongsStorage.sharedInstance(this).load();
         } catch (Exception e) {
             e.printStackTrace();  //To change body of catch statement use File | Settings | File Templates.
         }

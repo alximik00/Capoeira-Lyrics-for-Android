@@ -30,14 +30,14 @@ public class FavouritesActivity extends BaseListActivity {
     private void setupSongs() {
         try {
             //Set<Long> favs = FavouritesStorage.loadFavourites(this);
-            favourites.clear();
+            //favourites.clear();
            // favourites.addAll(favs);
         } catch (Exception e) {}
 
 
         try {
-            List<Song> loadedSongs = SongsStorage.loadFavourites(this, favourites);
-            setNewSongs( loadedSongs , favourites);
+            List<Song> loadedSongs = SongsStorage.sharedInstance(this).loadFavourites();
+            setNewSongs(loadedSongs);
         } catch (Exception e) { }
     }
 
@@ -71,8 +71,8 @@ public class FavouritesActivity extends BaseListActivity {
 
     protected void doSearch(String text, SearchType searchType) {
         try {
-            List<Song> newContent = SongsStorage.load(this, text, searchType, favourites);
-            setNewSongs(newContent, favourites);
+            List<Song> newContent = SongsStorage.sharedInstance(this).search(text, searchType, true);
+            setNewSongs(newContent);
         } catch (Exception ex) {
             Toast.makeText(this, "Can't load songs, sorry", 4).show();
         }

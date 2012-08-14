@@ -15,6 +15,7 @@ import android.widget.*;
 import com.alximik.capoeiralyrics.Constants;
 import com.alximik.capoeiralyrics.R;
 
+import com.alximik.capoeiralyrics.db.SongsStorage;
 import com.alximik.capoeiralyrics.entities.SearchType;
 import com.alximik.capoeiralyrics.entities.Song;
 import com.alximik.capoeiralyrics.network.ApiConstants;
@@ -53,7 +54,7 @@ public abstract class BaseListActivity extends Activity {
     protected TextView emptyText;
 
     protected List<Song> songs = new ArrayList<Song>();
-    protected Set<Long> favourites = new HashSet<Long>();
+    //protected Set<Long> favourites = new HashSet<Long>();
     private LinearLayout searchPanel;
     private SegmentedRadioGroup searchTypeRagiogroup;
     private EditText searchTextField;
@@ -169,13 +170,24 @@ public abstract class BaseListActivity extends Activity {
     protected void onQuickActionSelected(View view, Song song, int actionId) {
         if (actionId == IdQuickActionFav && !song.isFavourite()) {
             song.setFavourite(true);
-            favourites.add(song.getId());
+            try {
+                SongsStorage.sharedInstance(this).update(song);
+            } catch (Exception e) {
+                e.printStackTrace();  //To change body of catch statement use File | Settings | File Templates.
+            }
+            //favourites.add(song.getId());
             view.findViewById(R.id.img_favorite2).setVisibility(View.VISIBLE);
             //FavouritesStorage.add(this, song.getId());
 
         } else if (actionId == IdQuickActionUnfav && song.isFavourite()) {
             song.setFavourite(false);
-            favourites.remove(song.getId());
+            try {
+                SongsStorage.sharedInstance(this).update(song);
+            } catch (Exception e) {
+                e.printStackTrace();  //To change body of catch statement use File | Settings | File Templates.
+            }
+
+            //favourites.remove(song.getId());
             view.findViewById(R.id.img_favorite2).setVisibility(View.GONE);
             //FavouritesStorage.remove(this, song.getId());
 
@@ -212,19 +224,9 @@ public abstract class BaseListActivity extends Activity {
         return super.onKeyDown(keyCode, event);
     }
 
-    protected void setNewSongs(List<Song> newContent, Set<Long> favourites) {
+    protected void setNewSongs(List<Song> aSongs) {
         songs.clear();
-        songs.addAll(newContent);
-        int count = 0;
-        for(Song song: songs) {
-            if (favourites.contains(song.getId())) {
-                song.setFavourite(true);
-                count++;
-            }
-        }
-        Log.i(Constants.TAG, "Set " + count + " favourites");
-
-
+        songs.addAll(aSongs);
 
         songsAdapter.notifyDataSetInvalidated();
 

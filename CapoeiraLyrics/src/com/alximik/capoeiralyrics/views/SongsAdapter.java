@@ -40,6 +40,11 @@ public class SongsAdapter extends ArrayAdapter<Song> {
         return false;
     }
 
+    public void setSongs(List<Song> aSongs){
+        songs.clear();
+        songs.addAll(aSongs);
+    }
+
     public View getView(int position, View convertView, ViewGroup parent) {
         
         if (convertView == null) {

@@ -213,5 +213,22 @@ public class Song implements Parcelable, Serializable {
         return !SU.isEmpty(videoUrl);
     }
 
+    @Override
+    public boolean equals(Object obj) {
+        if (this == obj)
+            return true;
+        if (obj == null)
+            return false;
+        if (getClass() != obj.getClass())
+            return false;
+        final Song other = (Song) obj;
+        if (other.id != this.id)
+            return false;
+        return true;
+    }
+
+
+
+
 
 }

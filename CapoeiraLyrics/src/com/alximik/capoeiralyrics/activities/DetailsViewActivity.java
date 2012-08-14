@@ -47,7 +47,7 @@ public class DetailsViewActivity extends Activity {
         setContentView(R.layout.song_details);
 
         long songId = getIntent().getExtras().getLong(Constants.SONG_ID);
-        song = SongsStorage.findById(this, songId);
+        song = SongsStorage.sharedInstance(this).findById( songId);
 
         ActionBar actionBar = (ActionBar) findViewById(R.id.actionbar);
         setupActionBar(actionBar);
