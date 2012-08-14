@@ -3,21 +3,15 @@ package com.alximik.capoeiralyrics.db;
 import android.content.Context;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
-import android.view.ContextThemeWrapper;
 import com.alximik.capoeiralyrics.entities.SearchType;
 import com.alximik.capoeiralyrics.entities.Song;
 import com.alximik.capoeiralyrics.entities.SongDao;
-import com.alximik.capoeiralyrics.utils.SU;
-import com.j256.ormlite.dao.Dao;
-import com.j256.ormlite.stmt.QueryBuilder;
-import com.j256.ormlite.stmt.Where;
 
 import java.sql.SQLException;
 import java.util.*;
 
 /**
  * Created by IntelliJ IDEA.
- *
  * @author alximik
  * @since 6/28/12 7:07 PM
  */
@@ -105,7 +99,7 @@ public class SongsStorage {
 
     }
 
-    public void save(Context context, List<Song> songs) throws Exception {
+    public void save(List<Song> songs) throws Exception {
 
         this.songDao.deleteAll();
 

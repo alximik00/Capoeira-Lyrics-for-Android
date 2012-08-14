@@ -89,7 +89,7 @@ public class SplashScreenActivity extends Activity {
                     @Override
                     public void run() {
                         try {
-                            SongsStorage.sharedInstance(SplashScreenActivity.this).save(SplashScreenActivity.this, songs);
+                            SongsStorage.sharedInstance(SplashScreenActivity.this).save(songs);
                             startSongsList();
                         } catch (Exception e) {
                             e.printStackTrace();  //To change body of catch statement use File | Settings | File Templates.

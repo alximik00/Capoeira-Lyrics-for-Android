@@ -251,7 +251,7 @@ public class SongsListActivity extends BaseListActivity {
         Thread saveThread = new Thread() {
             public void run() {
                 try {
-                    SongsStorage.sharedInstance(SongsListActivity.this).save(SongsListActivity.this,  newSongs);
+                    SongsStorage.sharedInstance(SongsListActivity.this).save(newSongs);
                 } catch (Exception e) {
                     Log.e(Constants.TAG, getString(R.string.msg_update_failed), e);
                 }
