@@ -17,6 +17,9 @@ public class MainApplication extends Application {
 
     public MainApplication() {
         instance = this;
+
+        // create database
+        //DatabaseHelper.copyDatabaseFromAssets(getContext());
     }
 
     public static Context getContext() {

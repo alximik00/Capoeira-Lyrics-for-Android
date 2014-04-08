@@ -46,12 +46,14 @@ public class DetailsViewActivity extends Activity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.song_details);
 
+        long songId = getIntent().getExtras().getLong(Constants.SONG_ID);
+        song = SongsStorage.sharedInstance(this).findById( songId);
+
         ActionBar actionBar = (ActionBar) findViewById(R.id.actionbar);
         setupActionBar(actionBar);
 
 
-        long songId = getIntent().getExtras().getLong(Constants.SONG_ID);
-        song = SongsStorage.findById(this, songId);
+
         if (song == null) {
             new AlertDialog.Builder(this)
                     .setTitle("Song not found")
@@ -89,10 +91,32 @@ public class DetailsViewActivity extends Activity {
 
     private void setupActionBar(ActionBar actionBar) {
 
+
+
+
+        actionBar.setHomeAction(new ActionBar.Action() {
+            @Override
+            public int getDrawable() {
+                return R.drawable.toolbar_home_default;
+            }
+
+            @Override
+            public void performAction(View view) {
+                finish();
+            }
+        });
+
+        if(song != null){
+            actionBar.setTitle(song.getTitle() + " - " + song.getAuthor());
+        }else{
+            actionBar.setTitle("Capoeira Lyrics");
+        }
+
+
         actionBar.addAction(new ActionBar.Action() {
             @Override
             public int getDrawable() {
-                return R.drawable.ic_menu_share_holo_dark;
+                return R.drawable.toolbar_share_default;
             }
 
             @Override
@@ -112,17 +136,7 @@ public class DetailsViewActivity extends Activity {
             }
         });
 
-        actionBar.addAction(new ActionBar.Action() {
-            @Override
-            public int getDrawable() {
-                return R.drawable.arrow_left;
-            }
 
-            @Override
-            public void performAction(View view) {
-                finish();
-            }
-        });
     }
 
     @Override
@@ -169,7 +183,7 @@ public class DetailsViewActivity extends Activity {
             LinearLayout.LayoutParams tipParams = new LinearLayout.LayoutParams(LinearLayout.LayoutParams.FILL_PARENT,
                                                   LinearLayout.LayoutParams.WRAP_CONTENT);
             tipParams.topMargin = 10;
-            tipParams.bottomMargin = 25;
+            tipParams.bottomMargin = 10;
             tipParams.gravity = Gravity.CENTER_HORIZONTAL;
 
             TextView tipText = new TextView(this);
@@ -177,16 +191,16 @@ public class DetailsViewActivity extends Activity {
 
             tipText.setText(getTipText(index));
 
-            tipText.setTextSize(TypedValue.COMPLEX_UNIT_DIP, 11);
+            tipText.setTextSize(TypedValue.COMPLEX_UNIT_DIP, 12);
             tipText.setTextColor(0xFF999999);
             tipText.setGravity(Gravity.CENTER_HORIZONTAL);
             linear.addView(tipText);
         }
-
+       /*
         // Title
         LinearLayout.LayoutParams titleParams = new LinearLayout.LayoutParams(LinearLayout.LayoutParams.FILL_PARENT,
                 LinearLayout.LayoutParams.WRAP_CONTENT);
-        titleParams.bottomMargin = 20;
+        titleParams.bottomMargin = 10;
         titleParams.gravity = Gravity.CENTER_HORIZONTAL;
 
         TextView titleText = new TextView(this);
@@ -195,18 +209,20 @@ public class DetailsViewActivity extends Activity {
         titleText.setGravity(Gravity.CENTER_HORIZONTAL);
         titleText.setLayoutParams(titleParams);
         titleText.setTextColor(0xFF2F7EED);
-        linear.addView(titleText);
+        linear.addView(titleText); */
 
         // Content text
         LinearLayout.LayoutParams contentParams = new LinearLayout.LayoutParams(LinearLayout.LayoutParams.FILL_PARENT,
                 LinearLayout.LayoutParams.FILL_PARENT);
-        contentParams.bottomMargin = 20;
+        contentParams.bottomMargin = 10;
         contentParams.gravity = Gravity.CENTER_HORIZONTAL;
 
         TextView contentText = new TextView(this);
         contentText.setGravity( Gravity.CENTER_HORIZONTAL );
         contentText.setLayoutParams(contentParams);
         contentText.setText( text, TextView.BufferType.SPANNABLE );
+        contentText.setTextSize(TypedValue.COMPLEX_UNIT_DIP, 16);
+        contentText.setTextColor(0xFF222222);
         contentText.setLineSpacing(0, 2);
         linear.addView(contentText);
 
@@ -219,7 +235,7 @@ public class DetailsViewActivity extends Activity {
             text = "← " + text;
 
         if (index < texts.size() - 1)
-            text += "→";
+            text += " →";
         return text;
     }
 

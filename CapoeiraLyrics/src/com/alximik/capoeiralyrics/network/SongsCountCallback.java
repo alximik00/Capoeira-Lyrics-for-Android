@@ -10,8 +10,8 @@ import java.util.List;
  * @author alximik
  * @since 6/28/12 7:44 PM
  */
-public interface SongsCallback {
-    void onSuccess(List<Song> songs);
+public interface SongsCountCallback {
+    void onSuccess(int count);
     void onError(String error);
 }
 

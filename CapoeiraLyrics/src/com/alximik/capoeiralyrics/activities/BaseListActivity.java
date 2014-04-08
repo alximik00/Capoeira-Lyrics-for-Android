@@ -14,11 +14,11 @@ import android.view.inputmethod.InputMethodManager;
 import android.widget.*;
 import com.alximik.capoeiralyrics.Constants;
 import com.alximik.capoeiralyrics.R;
-import com.alximik.capoeiralyrics.db.FavouritesStorage;
+
+import com.alximik.capoeiralyrics.db.SongsStorage;
 import com.alximik.capoeiralyrics.entities.SearchType;
 import com.alximik.capoeiralyrics.entities.Song;
 import com.alximik.capoeiralyrics.network.ApiConstants;
-import com.alximik.capoeiralyrics.network.NetworkConstants;
 import com.alximik.capoeiralyrics.utils.SU;
 import com.alximik.capoeiralyrics.views.SongsAdapter;
 import com.makeramen.segmented.SegmentedRadioGroup;
@@ -27,6 +27,8 @@ import com.smaato.soma.AdType;
 import com.smaato.soma.BannerView;
 import net.londatiga.android.ActionItem;
 import net.londatiga.android.QuickAction;
+
+import com.alximik.capoeiralyrics.network.NetworkConstants;
 
 import java.util.ArrayList;
 import java.util.HashSet;
@@ -52,7 +54,7 @@ public abstract class BaseListActivity extends Activity {
     protected TextView emptyText;
 
     protected List<Song> songs = new ArrayList<Song>();
-    protected Set<Long> favourites = new HashSet<Long>();
+    //protected Set<Long> favourites = new HashSet<Long>();
     private LinearLayout searchPanel;
     private SegmentedRadioGroup searchTypeRagiogroup;
     private EditText searchTextField;
@@ -148,9 +150,6 @@ public abstract class BaseListActivity extends Activity {
             quickActionMenu.addActionItem(new ActionItem(IdQuickActionPlayVideo, "Play Video") );
         }
 
-        if (song.hasAudio()) {
-            quickActionMenu.addActionItem(new ActionItem(IdQuickActionPlayAudio, "Play Audio") );
-        }
 
         quickActionMenu.setOnActionItemClickListener(new QuickAction.OnActionItemClickListener() {
             @Override
@@ -171,18 +170,27 @@ public abstract class BaseListActivity extends Activity {
     protected void onQuickActionSelected(View view, Song song, int actionId) {
         if (actionId == IdQuickActionFav && !song.isFavourite()) {
             song.setFavourite(true);
-            favourites.add(song.getId());
+            try {
+                SongsStorage.sharedInstance(this).update(song);
+            } catch (Exception e) {
+                e.printStackTrace();  //To change body of catch statement use File | Settings | File Templates.
+            }
+            //favourites.add(song.getId());
             view.findViewById(R.id.img_favorite2).setVisibility(View.VISIBLE);
-            FavouritesStorage.add(this, song.getId());
+            //FavouritesStorage.add(this, song.getId());
 
         } else if (actionId == IdQuickActionUnfav && song.isFavourite()) {
             song.setFavourite(false);
-            favourites.remove(song.getId());
-            view.findViewById(R.id.img_favorite2).setVisibility(View.GONE);
-            FavouritesStorage.remove(this, song.getId());
+            try {
+                SongsStorage.sharedInstance(this).update(song);
+            } catch (Exception e) {
+                e.printStackTrace();  //To change body of catch statement use File | Settings | File Templates.
+            }
 
-        } else if (actionId == IdQuickActionPlayAudio) {
-            startUrl(this, song.getAudioUrl());
+            //favourites.remove(song.getId());
+            view.findViewById(R.id.img_favorite2).setVisibility(View.GONE);
+            //FavouritesStorage.remove(this, song.getId());
+
         } else if (actionId == IdQuickActionPlayVideo) {
             startUrl(this,  song.getVideoUrl());
         }
@@ -216,21 +224,13 @@ public abstract class BaseListActivity extends Activity {
         return super.onKeyDown(keyCode, event);
     }
 
-    protected void setNewSongs(List<Song> newContent, Set<Long> favourites) {
+    protected void setNewSongs(List<Song> aSongs) {
         songs.clear();
-        songs.addAll(newContent);
-        int count = 0;
-        for(Song song: songs) {
-            if (favourites.contains(song.getId())) {
-                song.setFavourite(true);
-                count++;
-            }
-        }
-        Log.i(Constants.TAG, "Set " + count + " favourites");
+        songs.addAll(aSongs);
 
         songsAdapter.notifyDataSetInvalidated();
 
-        if (songs.size() ==0 ) {
+        if (songs.isEmpty()) {
             listView.setVisibility(View.GONE);
             emptyText.setVisibility(View.VISIBLE);
         } else {

@@ -50,7 +50,7 @@ public class NetworkConstants implements ApiConstants {
 
     @Override
     public int getSmaatoAdSpace() {
-        return 65765636;
+        return 65766589;
     }
 
 }

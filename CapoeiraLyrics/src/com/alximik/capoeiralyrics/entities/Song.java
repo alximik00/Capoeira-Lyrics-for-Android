@@ -20,35 +20,38 @@ import java.util.List;
  * @author alximik
  * @since 27.06.12 19:00
  */
-@DatabaseTable(tableName = "songs")
+
 public class Song implements Parcelable, Serializable {
 
-    @DatabaseField(id = true)
     private long id;
 
-    @DatabaseField private String title;
-    @DatabaseField private String author;
-    @DatabaseField private String text;
-    @DatabaseField private String engText;
-    @DatabaseField private String rusText;
-    @DatabaseField private String audioUrl;
-    @DatabaseField private String videoUrl;
+     private String title;
+     private String author;
+     private String text;
+     private String titleNorm;
+     private String authorNorm;
+     private String textNorm;
+     private String engText;
+     private String rusText;
+     private String videoUrl;
 
     private boolean favourite = false;
 
     public Song() {
     }
 
-    public Song(long id, String title, String author, String text, String engText, String rusText, String audioUrl, String videoUrl) {
+    public Song(long id, String title, String author, String text, String engText, String rusText, boolean favourite, String videoUrl) {
         this.id = id;
         this.title = title;
         this.author = author;
         this.text = text;
         this.engText = engText;
         this.rusText = rusText;
-        //this.audioUrl = audioUrl;
-        this.audioUrl = null;
         this.videoUrl = videoUrl;
+        this.favourite = favourite;
+        this.titleNorm = SU.deAccent(this.title);
+        this.authorNorm = SU.deAccent(this.author);
+        this.textNorm = SU.deAccent(this.text);
     }
 
     public long getId() {
@@ -59,12 +62,24 @@ public class Song implements Parcelable, Serializable {
         return title;
     }
 
+    public String getTitleNorm() {
+        return titleNorm;
+    }
+
     public String getAuthor() {
         return author;
     }
 
+    public String getAuthorNorm() {
+        return authorNorm;
+    }
+
     public String getText() {
         return text;
+    }
+
+    public String getTextNorm() {
+        return textNorm;
     }
 
     public String getEngText() {
@@ -75,9 +90,7 @@ public class Song implements Parcelable, Serializable {
         return rusText;
     }
 
-    public String getAudioUrl() {
-        return audioUrl;
-    }
+
 
     public String getVideoUrl() {
         return videoUrl;
@@ -98,14 +111,17 @@ public class Song implements Parcelable, Serializable {
 
     public void setTitle(String title) {
         this.title = title;
+        this.titleNorm = SU.deAccent(this.title);
     }
 
     public void setAuthor(String author) {
         this.author = author;
+        this.authorNorm = SU.deAccent(this.author);
     }
 
     public void setText(String text) {
         this.text = text;
+        this.textNorm = SU.deAccent(this.text);
     }
 
     public void setEngText(String engText) {
@@ -116,9 +132,7 @@ public class Song implements Parcelable, Serializable {
         this.rusText = rusText;
     }
 
-    public void setAudioUrl(String audioUrl) {
-        this.audioUrl = audioUrl;
-    }
+
 
     public void setVideoUrl(String videoUrl) {
         this.videoUrl = videoUrl;
@@ -132,9 +146,8 @@ public class Song implements Parcelable, Serializable {
                 JU.getStringSafe(jsonObject, "Artist"),
                 JU.getStringSafe(jsonObject, "Text"),
                 JU.getStringSafe(jsonObject, "EngText"),
-
                 JU.getStringSafe(jsonObject, "RusText"),
-                JU.getStringSafe(jsonObject, "AudioUrl"),
+                false,
                 JU.getStringSafe(jsonObject, "VideoUrl")
         );
     }
@@ -165,8 +178,11 @@ public class Song implements Parcelable, Serializable {
         parcel.writeString( text );
         parcel.writeString( engText );
         parcel.writeString( rusText );
-        parcel.writeString( audioUrl );
         parcel.writeString( videoUrl );
+
+        parcel.writeString(titleNorm);
+        parcel.writeString(authorNorm);
+        parcel.writeString(textNorm);
     }
 
     private Song(Parcel parcel) {
@@ -176,8 +192,11 @@ public class Song implements Parcelable, Serializable {
         this.text = parcel.readString();
         this.engText = parcel.readString();
         this.rusText = parcel.readString();
-        this.audioUrl = parcel.readString();
         this.videoUrl = parcel.readString();
+
+        this.titleNorm = parcel.readString();
+        this.authorNorm = parcel.readString();
+        this.textNorm = parcel.readString();
     }
 
     public static final Parcelable.Creator<Song> CREATOR = new Parcelable.Creator<Song>() {
@@ -194,7 +213,22 @@ public class Song implements Parcelable, Serializable {
         return !SU.isEmpty(videoUrl);
     }
 
-    public boolean hasAudio() {
-        return !SU.isEmpty(audioUrl);
+    @Override
+    public boolean equals(Object obj) {
+        if (this == obj)
+            return true;
+        if (obj == null)
+            return false;
+        if (getClass() != obj.getClass())
+            return false;
+        final Song other = (Song) obj;
+        if (other.id != this.id)
+            return false;
+        return true;
     }
+
+
+
+
+
 }
